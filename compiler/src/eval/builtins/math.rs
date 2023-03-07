@@ -1,7 +1,7 @@
 use super::eval_args;
 use crate::eval::Function;
 use crate::eval::{ArgumentsSize, EvalContext, EvalError};
-use crate::lisp::{Atom, Expression, Value};
+use crate::lisp::{Expression, Value};
 
 pub struct F_Add {}
 pub struct F_Sub {}

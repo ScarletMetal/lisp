@@ -215,10 +215,4 @@ mod tests {
 
         assert!(number == Ok(123.4));
     }
-
-    #[test]
-    fn test_lex_basic_addition() {
-        let source = "(+ 1 2)";
-        let tokens = super::lex(source);
-    }
 }

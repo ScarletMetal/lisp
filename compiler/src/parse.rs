@@ -1,5 +1,4 @@
 use crate::lisp::{Atom, Expression, Token};
-use crate::scan::Scanner;
 
 #[derive(Debug)]
 pub enum ParseError {

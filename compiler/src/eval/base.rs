@@ -6,7 +6,6 @@ use crate::lisp::{Atom, Expression, Value};
 #[derive(Debug)]
 pub enum EvalError {
     BadArguments,
-    BadType,
     UndefinedBehaviour,
     UnknownFunction(String),
     NameNotFound(String),
@@ -110,6 +109,5 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
                 }
             }
         }
-        _ => Err(EvalError::BadType),
     }
 }

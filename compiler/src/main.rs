@@ -33,6 +33,4 @@ fn main() -> std::io::Result<()> {
         let line = _prompt()?;
         _run_source(&line, &mut context);
     }
-
-    Ok(())
 }
