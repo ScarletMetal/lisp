@@ -20,7 +20,7 @@ impl Function for F_Add {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right), rest @ ..] => {
+            [Value::Number(_), Value::Number(_), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val { Value::Number(num) => Ok(*num), _ => Err(EvalError::UndefinedBehaviour) } )
@@ -45,7 +45,7 @@ impl Function for F_Sub {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right), rest @ ..] => {
+            [Value::Number(_), Value::Number(_), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val { Value::Number(num) => Ok(*num), _ => Err(EvalError::UndefinedBehaviour) } )
@@ -70,7 +70,7 @@ impl Function for F_Mul {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right), rest @ ..] => {
+            [Value::Number(_), Value::Number(_), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val { Value::Number(num) => Ok(*num), _ => Err(EvalError::UndefinedBehaviour) } )
@@ -95,7 +95,7 @@ impl Function for F_Div {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right), rest @ ..] => {
+            [Value::Number(_), Value::Number(_), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val { Value::Number(num) => Ok(*num), _ => Err(EvalError::UndefinedBehaviour) } )

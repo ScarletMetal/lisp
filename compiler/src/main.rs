@@ -19,7 +19,6 @@ fn _run_source(source: &str, context: &mut eval::EvalContext) {
 fn _prompt() -> std::io::Result<String> {
     let mut line = String::new();
     let stdin = io::stdin();
-    let stdout = io::stdout();
     print!(">> ");
     io::stdout().flush()?;
     stdin.read_line(&mut line)?;

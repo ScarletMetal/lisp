@@ -4,9 +4,7 @@ use crate::scan::Scanner;
 #[derive(Debug)]
 pub enum LexError {
     FloatParsingFailed,
-    IntegerParsingFailed,
     InvalidLiteral(char),
-    InvalidNumber,
     StringNeverClosed,
 }
 
@@ -159,7 +157,7 @@ pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {
                 let literal = _scan_literal(&mut scanner)?;
                 _lex_literal(&literal, &mut tokens);
             }
-            e @ _ => {
+            _ => {
                 break;
             }
         }
