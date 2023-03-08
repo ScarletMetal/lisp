@@ -1,8 +1,8 @@
 use super::eval_args;
+use crate::eval::eval;
 use crate::eval::Function;
 use crate::eval::{ArgumentsSize, EvalContext, EvalError};
 use crate::lisp::{Atom, Expression, Value};
-use crate::eval::eval;
 
 pub struct SetQFunction {}
 pub struct ConcatenateFunction {}
@@ -30,7 +30,7 @@ impl Function for SetQFunction {
 
 impl Function for ConcatenateFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
-        ArgumentsSize::Exact(2)
+        ArgumentsSize::Range(1..)
     }
 
     fn eval(
@@ -41,9 +41,7 @@ impl Function for ConcatenateFunction {
         let args = eval_args(arguments, context)?;
 
         match &args[..] {
-            [Value::String(left), Value::String(right)] => {
-                return Ok(Value::String([left.as_str(), right.as_str()].concat()));
-            }
+            [_, ..] => Ok(Value::String(args.iter().map(Value::to_string).collect())),
             _ => Err(EvalError::UndefinedBehaviour),
         }
     }
