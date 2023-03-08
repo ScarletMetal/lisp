@@ -1,6 +1,7 @@
-use std::collections::HashMap;
 use std::rc::Rc;
 
+use crate::eval::custom::CustomFunction;
+use crate::eval::frame::{EvalContext, EvalFrame};
 use crate::lisp::{Atom, Expression, Value};
 
 #[derive(Debug)]
@@ -32,77 +33,10 @@ pub trait Function {
         -> Result<Value, EvalError>;
 }
 
-pub struct EvalContext {
-    pub functions: HashMap<String, Rc<dyn Function>>,
-    pub values: HashMap<String, Value>,
-}
-
-impl EvalContext {
-    pub fn new() -> Self {
-        Self {
-            functions: HashMap::from([
-                (
-                    String::from("+"),
-                    Rc::new(super::builtins::AddFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("-"),
-                    Rc::new(super::builtins::SubFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("*"),
-                    Rc::new(super::builtins::MulFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("/"),
-                    Rc::new(super::builtins::DivFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("setq"),
-                    Rc::new(super::builtins::SetQFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("concatenate"),
-                    Rc::new(super::builtins::ConcatenateFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("="),
-                    Rc::new(super::builtins::EqFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from(">"),
-                    Rc::new(super::builtins::GreaterFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("<"),
-                    Rc::new(super::builtins::LessFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from(">="),
-                    Rc::new(super::builtins::GreaterEqFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("<="),
-                    Rc::new(super::builtins::LessEqFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("write"),
-                    Rc::new(super::builtins::WriteFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("read"),
-                    Rc::new(super::builtins::ReadFunction {}) as Rc<dyn Function>,
-                ),
-            ]),
-            values: HashMap::new(),
-        }
-    }
-}
-
 pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalError> {
     match expr {
         Expression::Atom(Atom::Literal(literal)) => {
-            if let Some(value) = context.values.get(literal) {
+            if let Some(value) = context.lookup_variable(literal) {
                 return Ok(value.clone());
             } else {
                 return Err(EvalError::NameNotFound(literal.clone()));
@@ -112,12 +46,15 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
             return Ok(value.clone());
         }
         Expression::Call(literal, children) => {
-            if context.functions.contains_key(literal) {
-                let function = context.functions.get(literal).unwrap().clone();
+            if let Some(function) = context.lookup_function(literal) {
                 if !function.get_arguments_size().contains(children.len()) {
                     return Err(EvalError::BadArguments);
                 }
-                return function.eval(&children, context);
+
+                context.add_frame(EvalFrame::new());
+                let res = function.eval(children, context);
+                context.pop_frame();
+                res
             } else {
                 return Err(EvalError::UnknownFunction(literal.clone()));
             }
@@ -132,6 +69,14 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
                     Ok(Value::Nil)
                 }
             }
+        }
+        Expression::Function(name, parameters, code) => {
+            let function = CustomFunction::new(parameters.clone(), (**code).clone());
+            context
+                .root_mut()
+                .functions
+                .insert(name.clone(), Rc::new(function));
+            Ok(Value::True)
         }
     }
 }

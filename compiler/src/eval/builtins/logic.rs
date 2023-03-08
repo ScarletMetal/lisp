@@ -1,6 +1,6 @@
 use super::eval_args;
 use crate::{
-    eval::{ArgumentsSize, EvalError, Function},
+    eval::{frame::EvalContext, ArgumentsSize, EvalError, Function},
     lisp::Value,
 };
 
@@ -23,7 +23,7 @@ impl Function for EqFunction {
     fn eval(
         &self,
         arguments: &[crate::lisp::Expression],
-        context: &mut crate::eval::EvalContext,
+        context: &mut EvalContext,
     ) -> Result<crate::lisp::Value, EvalError> {
         let args = eval_args(arguments, context)?;
         let value = args[1..].iter().all(|item| item == args.first().unwrap());
@@ -39,7 +39,7 @@ impl Function for GreaterFunction {
     fn eval(
         &self,
         arguments: &[crate::lisp::Expression],
-        context: &mut crate::eval::EvalContext,
+        context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
@@ -61,7 +61,7 @@ impl Function for LessFunction {
     fn eval(
         &self,
         arguments: &[crate::lisp::Expression],
-        context: &mut crate::eval::EvalContext,
+        context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
@@ -83,7 +83,7 @@ impl Function for GreaterEqFunction {
     fn eval(
         &self,
         arguments: &[crate::lisp::Expression],
-        context: &mut crate::eval::EvalContext,
+        context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
@@ -105,7 +105,7 @@ impl Function for LessEqFunction {
     fn eval(
         &self,
         arguments: &[crate::lisp::Expression],
-        context: &mut crate::eval::EvalContext,
+        context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {

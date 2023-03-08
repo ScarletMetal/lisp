@@ -42,9 +42,45 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
             };
 
             if let Some(Token::CloseParen) = after_else_case.first() {
-                return Ok((&after_else_case[1..], Expression::If(Box::new(condition), Box::new(if_case), else_case)));
+                return Ok((
+                    &after_else_case[1..],
+                    Expression::If(Box::new(condition), Box::new(if_case), else_case),
+                ));
             }
 
+            return Err(ParseError::ExpressionNotClosed);
+        }
+        [Token::OpenParen, Token::Defun, Token::Atom(Atom::Literal(name)), Token::OpenParen, rest @ ..] =>
+        {
+            let mut literals = vec![];
+            let mut temp = rest;
+
+            while temp.len() > 0 {
+                match temp.first() {
+                    Some(Token::CloseParen) => {
+                        temp = &temp[1..]; // Skip CloseParen
+                        break;
+                    }
+                    Some(Token::Atom(Atom::Literal(literal))) => {
+                        temp = &temp[1..];
+                        literals.push(literal.clone());
+                    }
+                    Some(token) => {
+                        return Err(ParseError::InvalidToken(token.clone()));
+                    }
+                    _ => {
+                        return Err(ParseError::ExpressionNotClosed);
+                    }
+                }
+            }
+
+            let (after_code, code) = _parse_expression(temp)?;
+            if let Some(Token::CloseParen) = after_code.first() {
+                return Ok((
+                    &after_code[1..],
+                    Expression::Function(name.clone(), literals, Box::new(code)),
+                ));
+            }
             return Err(ParseError::ExpressionNotClosed);
         }
         [Token::Atom(atom), rest @ ..] => {

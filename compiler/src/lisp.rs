@@ -24,11 +24,12 @@ pub enum Value {
     Nil
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum Expression {
     Atom(Atom),
     Call(String, Vec<Expression>),
-    If(Box<Expression>, Box<Expression>, Option<Box<Expression>>)
+    If(Box<Expression>, Box<Expression>, Option<Box<Expression>>),
+    Function(String, Vec<String>, Box<Expression>)
 }
 
 impl Display for Value {

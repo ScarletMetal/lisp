@@ -1,7 +1,8 @@
 use super::eval_args;
 use crate::eval::eval;
+use crate::eval::frame::EvalContext;
 use crate::eval::Function;
-use crate::eval::{ArgumentsSize, EvalContext, EvalError};
+use crate::eval::{ArgumentsSize, EvalError};
 use crate::lisp::{Atom, Expression, Value};
 
 pub struct SetQFunction {}
@@ -12,15 +13,11 @@ impl Function for SetQFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
         match arguments {
             [Expression::Atom(Atom::Literal(literal)), expr] => {
                 let value = eval(expr, context)?;
-                context.values.insert(literal.clone(), value.clone());
+                context.current_mut().locals.insert(literal.clone(), value.clone());
                 Ok(value.clone())
             }
             _ => Err(EvalError::UndefinedBehaviour),
@@ -33,11 +30,7 @@ impl Function for ConcatenateFunction {
         ArgumentsSize::Range(1..)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
 
         match &args[..] {
