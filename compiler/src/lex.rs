@@ -53,7 +53,7 @@ fn _scan_literal(scanner: &mut Scanner<char>) -> Result<String, LexError> {
 }
 
 fn _is_valid_literal_start(c: char) -> bool {
-    c.is_alphabetic() || ['+', '-', '/', '*', '='].contains(&c)
+    c.is_alphabetic() || ['+', '-', '/', '*', '=', '<', '>'].contains(&c)
 }
 
 fn _is_valid_literal(c: char) -> bool {

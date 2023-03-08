@@ -3,12 +3,12 @@ use crate::eval::Function;
 use crate::eval::{ArgumentsSize, EvalContext, EvalError};
 use crate::lisp::{Expression, Value};
 
-pub struct F_Add {}
-pub struct F_Sub {}
-pub struct F_Mul {}
-pub struct F_Div {}
+pub struct AddFunction {}
+pub struct SubFunction {}
+pub struct MulFunction {}
+pub struct DivFunction {}
 
-impl Function for F_Add {
+impl Function for AddFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
         ArgumentsSize::Range(2..)
     }
@@ -33,7 +33,7 @@ impl Function for F_Add {
     }
 }
 
-impl Function for F_Sub {
+impl Function for SubFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
         ArgumentsSize::Range(2..)
     }
@@ -58,7 +58,7 @@ impl Function for F_Sub {
     }
 }
 
-impl Function for F_Mul {
+impl Function for MulFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
         ArgumentsSize::Range(2..)
     }
@@ -83,7 +83,7 @@ impl Function for F_Mul {
     }
 }
 
-impl Function for F_Div {
+impl Function for DivFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
         ArgumentsSize::Range(2..)
     }

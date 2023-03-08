@@ -4,10 +4,10 @@ use crate::eval::{ArgumentsSize, EvalContext, EvalError};
 use crate::lisp::{Atom, Expression, Value};
 use crate::eval::eval;
 
-pub struct F_SetQ {}
-pub struct F_Concat {}
+pub struct SetQFunction {}
+pub struct ConcatenateFunction {}
 
-impl Function for F_SetQ {
+impl Function for SetQFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
         ArgumentsSize::Exact(2)
     }
@@ -28,7 +28,7 @@ impl Function for F_SetQ {
     }
 }
 
-impl Function for F_Concat {
+impl Function for ConcatenateFunction {
     fn get_arguments_size(&self) -> ArgumentsSize {
         ArgumentsSize::Exact(2)
     }

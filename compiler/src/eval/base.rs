@@ -14,14 +14,14 @@ pub enum EvalError {
 #[derive(Debug)]
 pub enum ArgumentsSize {
     Exact(usize),
-    Range(std::ops::RangeFrom<usize>)
+    Range(std::ops::RangeFrom<usize>),
 }
 
 impl ArgumentsSize {
     pub fn contains(&self, value: usize) -> bool {
         match self {
             ArgumentsSize::Exact(exact_size) => value == *exact_size,
-            ArgumentsSize::Range(range) => range.contains(&value)
+            ArgumentsSize::Range(range) => range.contains(&value),
         }
     }
 }
@@ -43,32 +43,56 @@ impl EvalContext {
             functions: HashMap::from([
                 (
                     String::from("+"),
-                    Rc::new(super::builtins::F_Add {}) as Rc<dyn Function>,
+                    Rc::new(super::builtins::AddFunction {}) as Rc<dyn Function>,
                 ),
                 (
                     String::from("-"),
-                    Rc::new(super::builtins::F_Sub {}) as Rc<dyn Function>,
+                    Rc::new(super::builtins::SubFunction {}) as Rc<dyn Function>,
                 ),
                 (
                     String::from("*"),
-                    Rc::new(super::builtins::F_Mul {}) as Rc<dyn Function>,
+                    Rc::new(super::builtins::MulFunction {}) as Rc<dyn Function>,
                 ),
                 (
                     String::from("/"),
-                    Rc::new(super::builtins::F_Div {}) as Rc<dyn Function>,
+                    Rc::new(super::builtins::DivFunction {}) as Rc<dyn Function>,
                 ),
                 (
                     String::from("setq"),
-                    Rc::new(super::builtins::F_SetQ {}) as Rc<dyn Function>,
+                    Rc::new(super::builtins::SetQFunction {}) as Rc<dyn Function>,
                 ),
                 (
                     String::from("concatenate"),
-                    Rc::new(super::builtins::F_Concat {}) as Rc<dyn Function>,
+                    Rc::new(super::builtins::ConcatenateFunction {}) as Rc<dyn Function>,
                 ),
                 (
                     String::from("="),
-                    Rc::new(super::builtins::F_Eq {}) as Rc<dyn Function>,
-                )
+                    Rc::new(super::builtins::EqFunction {}) as Rc<dyn Function>,
+                ),
+                (
+                    String::from(">"),
+                    Rc::new(super::builtins::GreaterFunction {}) as Rc<dyn Function>,
+                ),
+                (
+                    String::from("<"),
+                    Rc::new(super::builtins::LessFunction {}) as Rc<dyn Function>,
+                ),
+                (
+                    String::from(">="),
+                    Rc::new(super::builtins::GreaterEqFunction {}) as Rc<dyn Function>,
+                ),
+                (
+                    String::from("<="),
+                    Rc::new(super::builtins::LessEqFunction {}) as Rc<dyn Function>,
+                ),
+                (
+                    String::from("write"),
+                    Rc::new(super::builtins::WriteFunction {}) as Rc<dyn Function>,
+                ),
+                (
+                    String::from("read"),
+                    Rc::new(super::builtins::ReadFunction {}) as Rc<dyn Function>,
+                ),
             ]),
             values: HashMap::new(),
         }
