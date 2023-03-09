@@ -1,5 +1,5 @@
 use crate::eval::{frame::EvalContext, ArgumentsSize, Function};
-use crate::lisp::{Expression, Value};
+use lisp::{Expression, Value};
 
 use super::builtins::eval_args;
 use super::eval;

@@ -5,3 +5,10 @@ version = 3
 [[package]]
 name = "compiler"
 version = "0.1.0"
+dependencies = [
+ "lisp",
+]
+
+[[package]]
+name = "lisp"
+version = "0.1.0"

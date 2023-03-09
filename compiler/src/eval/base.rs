@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::eval::custom::CustomFunction;
 use crate::eval::frame::{EvalContext, EvalFrame};
-use crate::lisp::{Atom, Expression, Value};
+use lisp::{Atom, Expression, Value};
 
 #[derive(Debug)]
 pub enum EvalError {

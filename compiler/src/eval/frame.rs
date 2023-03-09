@@ -2,7 +2,8 @@ use std::collections::{HashMap, LinkedList};
 use std::fmt;
 use std::rc::Rc;
 
-use crate::{eval::Function, lisp::Value};
+use crate::eval::{builtins::create_builtins_map, Function};
+use lisp::Value;
 
 #[derive(Clone)]
 pub struct EvalFrame {
@@ -10,9 +11,10 @@ pub struct EvalFrame {
     pub locals: HashMap<String, Value>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct EvalContext {
     frames: LinkedList<EvalFrame>,
+    builtins: HashMap<String, Rc<dyn Function>>,
 }
 
 impl fmt::Debug for EvalFrame {
@@ -26,60 +28,7 @@ impl fmt::Debug for EvalFrame {
 impl EvalFrame {
     pub fn new() -> Self {
         Self {
-            functions: HashMap::from([
-                (
-                    String::from("+"),
-                    Rc::new(super::builtins::AddFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("-"),
-                    Rc::new(super::builtins::SubFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("*"),
-                    Rc::new(super::builtins::MulFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("/"),
-                    Rc::new(super::builtins::DivFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("setq"),
-                    Rc::new(super::builtins::SetQFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("concatenate"),
-                    Rc::new(super::builtins::ConcatenateFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("="),
-                    Rc::new(super::builtins::EqFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from(">"),
-                    Rc::new(super::builtins::GreaterFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("<"),
-                    Rc::new(super::builtins::LessFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from(">="),
-                    Rc::new(super::builtins::GreaterEqFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("<="),
-                    Rc::new(super::builtins::LessEqFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("write"),
-                    Rc::new(super::builtins::WriteFunction {}) as Rc<dyn Function>,
-                ),
-                (
-                    String::from("read"),
-                    Rc::new(super::builtins::ReadFunction {}) as Rc<dyn Function>,
-                ),
-            ]),
+            functions: HashMap::new(),
             locals: HashMap::new(),
         }
     }
@@ -89,6 +38,7 @@ impl EvalContext {
     pub fn new(root: EvalFrame) -> Self {
         Self {
             frames: LinkedList::from([root]),
+            builtins: create_builtins_map(),
         }
     }
 
@@ -101,6 +51,10 @@ impl EvalContext {
     }
 
     pub fn lookup_function(&self, name: &str) -> Option<Rc<dyn Function>> {
+        if let Some(func) = self.builtins.get(name) {
+            return Some(func.clone());
+        }
+
         for frame in self.frames.iter() {
             if let Some(func) = frame.functions.get(name) {
                 return Some(func.clone());

@@ -1,8 +1,9 @@
+use lisp::{Expression, Value};
+
 use super::eval_args;
 use crate::eval::frame::EvalContext;
 use crate::eval::Function;
 use crate::eval::{ArgumentsSize, EvalError};
-use crate::lisp::{Expression, Value};
 
 pub struct AddFunction {}
 pub struct SubFunction {}
@@ -14,7 +15,11 @@ impl Function for AddFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(
+        &self,
+        arguments: &[Expression],
+        context: &mut EvalContext,
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
             [Value::Number(_), Value::Number(_), ..] => {
@@ -40,7 +45,11 @@ impl Function for SubFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(
+        &self,
+        arguments: &[Expression],
+        context: &mut EvalContext,
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
             [Value::Number(_), Value::Number(_), ..] => {
@@ -53,7 +62,9 @@ impl Function for SubFunction {
                     .collect::<Result<Vec<f64>, EvalError>>()?;
 
                 Ok(Value::Number(
-                    numbers[1..].iter().fold(*numbers.first().unwrap(), |acc, val| acc - val),
+                    numbers[1..]
+                        .iter()
+                        .fold(*numbers.first().unwrap(), |acc, val| acc - val),
                 ))
             }
             _ => Err(EvalError::UndefinedBehaviour),
@@ -66,7 +77,11 @@ impl Function for MulFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(
+        &self,
+        arguments: &[Expression],
+        context: &mut EvalContext,
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
             [Value::Number(_), Value::Number(_), ..] => {
@@ -92,7 +107,11 @@ impl Function for DivFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(
+        &self,
+        arguments: &[Expression],
+        context: &mut EvalContext,
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
             [Value::Number(_), Value::Number(_), ..] => {

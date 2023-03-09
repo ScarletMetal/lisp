@@ -1,9 +1,10 @@
-use crate::eval::frame::EvalContext;
-use crate::eval::{ArgumentsSize, EvalError, Function};
-use crate::lisp::{Expression, Value};
 use std::io;
 
+use lisp::{Expression, Value};
+
 use super::eval_args;
+use crate::eval::frame::EvalContext;
+use crate::eval::{ArgumentsSize, EvalError, Function};
 
 pub struct WriteFunction {}
 pub struct ReadFunction {}
@@ -13,7 +14,11 @@ impl Function for WriteFunction {
         ArgumentsSize::Exact(1)
     }
 
-    fn eval(&self, arguments: &[Expression], context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(
+        &self,
+        arguments: &[Expression],
+        context: &mut EvalContext,
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
             [val] => {

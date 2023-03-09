@@ -1,8 +1,7 @@
+use lisp::Value;
+
 use super::eval_args;
-use crate::{
-    eval::{frame::EvalContext, ArgumentsSize, EvalError, Function},
-    lisp::Value,
-};
+use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function};
 
 #[derive(Debug)]
 pub struct EqFunction {}

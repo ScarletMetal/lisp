@@ -2,10 +2,10 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::Write;
+use lisp;
 
 mod eval;
 mod lex;
-mod lisp;
 mod parse;
 mod scan;
 
