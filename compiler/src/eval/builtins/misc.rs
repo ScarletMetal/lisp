@@ -1,4 +1,4 @@
-use lisp::{Atom, Expression, Value};
+use lisp::{Atom, Expression, Literal, Value};
 
 use super::eval_args;
 use crate::eval::eval;
@@ -21,12 +21,12 @@ impl Function for SetQFunction {
         context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         match arguments {
-            [Expression::Atom(Atom::Literal(literal)), expr] => {
+            [Expression::Atom(Atom::Name(name)), expr] => {
                 let value = eval(expr, context)?;
                 context
                     .current_mut()
                     .locals
-                    .insert(literal.clone(), value.clone());
+                    .insert(name.clone(), value.clone());
                 Ok(value.clone())
             }
             _ => Err(EvalError::UndefinedBehaviour),
@@ -47,7 +47,7 @@ impl Function for ConcatenateFunction {
         let args = eval_args(arguments, context)?;
 
         match &args[..] {
-            [_, ..] => Ok(Value::String(args.iter().map(Value::to_string).collect())),
+            [_, ..] => Ok(Value::Literal(Literal::String(args.iter().map(Value::to_string).collect()))),
             _ => Err(EvalError::UndefinedBehaviour),
         }
     }

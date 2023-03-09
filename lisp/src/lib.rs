@@ -1,5 +1,4 @@
 use std::fmt;
-use std::fmt::Display;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Token {
@@ -12,16 +11,21 @@ pub enum Token {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Atom {
-    Literal(String),
-    Value(Value)
+    Value(Value),
+    Name(String),
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Value {
+pub enum Literal {
     String(String),
     Number(f64),
     True,
     Nil
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Value {
+    Literal(Literal)
 }
 
 #[derive(Clone, Debug)]
@@ -32,14 +36,22 @@ pub enum Expression {
     Function(String, Vec<String>, Box<Expression>)
 }
 
-impl Display for Value {
+impl std::fmt::Display for Literal {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let str = match self {
-            Value::String(str) => format!("\"{}\"", str),
-            Value::Number(num) => num.to_string(),
-            Value::True => String::from("T"),
-            Value::Nil => String::from("NIL")
+            Literal::String(str) => format!("\"{}\"", str),
+            Literal::Number(num) => num.to_string(),
+            Literal::True => String::from("T"),
+            Literal::Nil => String::from("NIL")
         };
         write!(f, "{}", str)
+    }
+}
+
+impl std::fmt::Display for Value {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Literal(literal) => literal.fmt(f)
+        }
     }
 }

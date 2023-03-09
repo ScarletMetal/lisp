@@ -11,7 +11,7 @@ type ParseResult<'a> = (&'a [Token], Expression);
 
 fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError> {
     match tokens {
-        [Token::OpenParen, Token::Atom(Atom::Literal(literal)), rest @ ..] => {
+        [Token::OpenParen, Token::Atom(Atom::Name(name)), rest @ ..] => {
             let mut expressions = vec![];
             let mut temp = rest;
 
@@ -26,7 +26,7 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
                 expressions.push(expr);
             }
 
-            let res = Ok((temp, Expression::Call(literal.clone(), expressions)));
+            let res = Ok((temp, Expression::Call(name.clone(), expressions)));
             return res;
         }
         [Token::OpenParen, Token::If, rest @ ..] => {
@@ -50,7 +50,7 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
 
             return Err(ParseError::ExpressionNotClosed);
         }
-        [Token::OpenParen, Token::Defun, Token::Atom(Atom::Literal(name)), Token::OpenParen, rest @ ..] =>
+        [Token::OpenParen, Token::Defun, Token::Atom(Atom::Name(name)), Token::OpenParen, rest @ ..] =>
         {
             let mut literals = vec![];
             let mut temp = rest;
@@ -61,9 +61,9 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
                         temp = &temp[1..]; // Skip CloseParen
                         break;
                     }
-                    Some(Token::Atom(Atom::Literal(literal))) => {
+                    Some(Token::Atom(Atom::Name(name))) => {
                         temp = &temp[1..];
-                        literals.push(literal.clone());
+                        literals.push(name.clone());
                     }
                     Some(token) => {
                         return Err(ParseError::InvalidToken(token.clone()));

@@ -1,4 +1,4 @@
-use lisp::{Expression, Value};
+use lisp::{Expression, Literal, Value};
 
 use super::eval_args;
 use crate::eval::frame::EvalContext;
@@ -22,18 +22,18 @@ impl Function for AddFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(_), Value::Number(_), ..] => {
+            [Value::Literal(Literal::Number(_)), Value::Literal(Literal::Number(_)), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val {
-                        Value::Number(num) => Ok(*num),
+                        Value::Literal(Literal::Number(num)) => Ok(*num),
                         _ => Err(EvalError::UndefinedBehaviour),
                     })
                     .collect::<Result<Vec<f64>, EvalError>>()?;
 
-                Ok(Value::Number(
+                Ok(Value::Literal(Literal::Number(
                     numbers.iter().fold(0.0, |acc, val| acc + val),
-                ))
+                )))
             }
             _ => Err(EvalError::UndefinedBehaviour),
         }
@@ -52,20 +52,20 @@ impl Function for SubFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(_), Value::Number(_), ..] => {
+            [Value::Literal(Literal::Number(_)), Value::Literal(Literal::Number(_)), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val {
-                        Value::Number(num) => Ok(*num),
+                        Value::Literal(Literal::Number(num)) => Ok(*num),
                         _ => Err(EvalError::UndefinedBehaviour),
                     })
                     .collect::<Result<Vec<f64>, EvalError>>()?;
 
-                Ok(Value::Number(
+                Ok(Value::Literal(Literal::Number(
                     numbers[1..]
                         .iter()
                         .fold(*numbers.first().unwrap(), |acc, val| acc - val),
-                ))
+                )))
             }
             _ => Err(EvalError::UndefinedBehaviour),
         }
@@ -84,18 +84,18 @@ impl Function for MulFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(_), Value::Number(_), ..] => {
+            [Value::Literal(Literal::Number(_)), Value::Literal(Literal::Number(_)), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val {
-                        Value::Number(num) => Ok(*num),
+                        Value::Literal(Literal::Number(num)) => Ok(*num),
                         _ => Err(EvalError::UndefinedBehaviour),
                     })
                     .collect::<Result<Vec<f64>, EvalError>>()?;
 
-                Ok(Value::Number(
+                Ok(Value::Literal(Literal::Number(
                     numbers.iter().fold(1.0, |acc, val| acc * val),
-                ))
+                )))
             }
             _ => Err(EvalError::UndefinedBehaviour),
         }
@@ -114,20 +114,20 @@ impl Function for DivFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(_), Value::Number(_), ..] => {
+            [Value::Literal(Literal::Number(_)), Value::Literal(Literal::Number(_)), ..] => {
                 let numbers = args
                     .iter()
                     .map(|val| match val {
-                        Value::Number(num) => Ok(*num),
+                        Value::Literal(Literal::Number(num)) => Ok(*num),
                         _ => Err(EvalError::UndefinedBehaviour),
                     })
                     .collect::<Result<Vec<f64>, EvalError>>()?;
 
-                Ok(Value::Number(
+                Ok(Value::Literal(Literal::Number(
                     numbers[1..]
                         .iter()
                         .fold(*numbers.first().unwrap(), |acc, val| acc / val),
-                ))
+                )))
             }
             _ => Err(EvalError::UndefinedBehaviour),
         }

@@ -1,6 +1,6 @@
 use std::io;
 
-use lisp::{Expression, Value};
+use lisp::{Expression, Literal, Value};
 
 use super::eval_args;
 use crate::eval::frame::EvalContext;
@@ -44,7 +44,7 @@ impl Function for ReadFunction {
         let stdin = io::stdin();
 
         match stdin.read_line(&mut line) {
-            Ok(_) => Ok(Value::String(line)),
+            Ok(_) => Ok(Value::Literal(Literal::String(line))),
             _ => Err(EvalError::UndefinedBehaviour),
         }
     }

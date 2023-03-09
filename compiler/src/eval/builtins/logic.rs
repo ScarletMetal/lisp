@@ -1,4 +1,4 @@
-use lisp::Value;
+use lisp::{Literal, Value};
 
 use super::eval_args;
 use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function};
@@ -26,7 +26,11 @@ impl Function for EqFunction {
     ) -> Result<crate::lisp::Value, EvalError> {
         let args = eval_args(arguments, context)?;
         let value = args[1..].iter().all(|item| item == args.first().unwrap());
-        Ok(if value { Value::True } else { Value::Nil })
+        Ok(if value {
+            Value::Literal(Literal::True)
+        } else {
+            Value::Literal(Literal::Nil)
+        })
     }
 }
 
@@ -42,11 +46,13 @@ impl Function for GreaterFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right)] => Ok(if left > right {
-                Value::True
-            } else {
-                Value::Nil
-            }),
+            [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
+                Ok(if left > right {
+                    Value::Literal(Literal::True)
+                } else {
+                    Value::Literal(Literal::Nil)
+                })
+            }
             _ => Err(EvalError::BadArguments),
         }
     }
@@ -64,11 +70,13 @@ impl Function for LessFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right)] => Ok(if left < right {
-                Value::True
-            } else {
-                Value::Nil
-            }),
+            [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
+                Ok(if left < right {
+                    Value::Literal(Literal::True)
+                } else {
+                    Value::Literal(Literal::Nil)
+                })
+            }
             _ => Err(EvalError::BadArguments),
         }
     }
@@ -86,11 +94,13 @@ impl Function for GreaterEqFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right)] => Ok(if left >= right {
-                Value::True
-            } else {
-                Value::Nil
-            }),
+            [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
+                Ok(if left >= right {
+                    Value::Literal(Literal::True)
+                } else {
+                    Value::Literal(Literal::Nil)
+                })
+            }
             _ => Err(EvalError::BadArguments),
         }
     }
@@ -108,11 +118,13 @@ impl Function for LessEqFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Number(left), Value::Number(right)] => Ok(if left <= right {
-                Value::True
-            } else {
-                Value::Nil
-            }),
+            [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
+                Ok(if left <= right {
+                    Value::Literal(Literal::True)
+                } else {
+                    Value::Literal(Literal::Nil)
+                })
+            }
             _ => Err(EvalError::BadArguments),
         }
     }

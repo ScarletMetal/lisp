@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::eval::custom::CustomFunction;
 use crate::eval::frame::{EvalContext, EvalFrame};
-use lisp::{Atom, Expression, Value};
+use lisp::{Atom, Expression, Literal, Value};
 
 #[derive(Debug)]
 pub enum EvalError {
@@ -35,11 +35,11 @@ pub trait Function {
 
 pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalError> {
     match expr {
-        Expression::Atom(Atom::Literal(literal)) => {
-            if let Some(value) = context.lookup_variable(literal) {
+        Expression::Atom(Atom::Name(name)) => {
+            if let Some(value) = context.lookup_variable(name) {
                 return Ok(value.clone());
             } else {
-                return Err(EvalError::NameNotFound(literal.clone()));
+                return Err(EvalError::NameNotFound(name.clone()));
             }
         }
         Expression::Atom(Atom::Value(value)) => {
@@ -60,13 +60,13 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
             }
         }
         Expression::If(condition, if_case, else_or_none) => {
-            if let Value::True = eval(condition, context)? {
+            if let Value::Literal(Literal::True) = eval(condition, context)? {
                 eval(if_case, context)
             } else {
                 if let Some(else_case) = else_or_none {
                     eval(else_case, context)
                 } else {
-                    Ok(Value::Nil)
+                    Ok(Value::Literal(Literal::Nil))
                 }
             }
         }
@@ -76,7 +76,7 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
                 .root_mut()
                 .functions
                 .insert(name.clone(), Rc::new(function));
-            Ok(Value::True)
+            Ok(Value::Literal(Literal::True))
         }
     }
 }
