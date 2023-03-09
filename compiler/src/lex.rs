@@ -170,7 +170,7 @@ pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {
 mod tests {
     use crate::scan::Scanner;
 
-    use super::{_scan_literal, _skip_space, lex};
+    use super::{_scan_literal, _skip_space};
 
     #[test]
     fn test_skip_space() {
