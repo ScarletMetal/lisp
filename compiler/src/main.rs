@@ -53,7 +53,7 @@ fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     match &args[..] {
-        [_, path, ..] => execute_file(path),
+        [.., path] => execute_file(path),
         _ => repl()
     }
 }
