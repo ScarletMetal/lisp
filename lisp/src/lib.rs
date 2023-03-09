@@ -30,7 +30,8 @@ pub enum Value {
 
 #[derive(Clone, Debug)]
 pub enum Expression {
-    Atom(Atom),
+    Literal(Literal),
+    Name(String),
     Call(String, Vec<Expression>),
     If(Box<Expression>, Box<Expression>, Option<Box<Expression>>),
     Function(String, Vec<String>, Box<Expression>)

@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::eval::custom::CustomFunction;
 use crate::eval::frame::{EvalContext, EvalFrame};
-use lisp::{Atom, Expression, Literal, Value};
+use lisp::{Expression, Literal, Value};
 
 #[derive(Debug)]
 pub enum EvalError {
@@ -35,15 +35,15 @@ pub trait Function {
 
 pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalError> {
     match expr {
-        Expression::Atom(Atom::Name(name)) => {
+        Expression::Name(name) => {
             if let Some(value) = context.lookup_variable(name) {
                 return Ok(value.clone());
             } else {
                 return Err(EvalError::NameNotFound(name.clone()));
             }
         }
-        Expression::Atom(Atom::Value(value)) => {
-            return Ok(value.clone());
+        Expression::Literal(literal) => {
+            return Ok(Value::Literal(literal.clone()));
         }
         Expression::Call(literal, children) => {
             if let Some(function) = context.lookup_function(literal) {

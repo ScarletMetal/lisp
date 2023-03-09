@@ -1,4 +1,4 @@
-use lisp::{Atom, Expression, Literal, Value};
+use lisp::{Expression, Literal, Value};
 
 use super::eval_args;
 use crate::eval::eval;
@@ -21,7 +21,7 @@ impl Function for SetQFunction {
         context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         match arguments {
-            [Expression::Atom(Atom::Name(name)), expr] => {
+            [Expression::Name(name), expr] => {
                 let value = eval(expr, context)?;
                 context
                     .current_mut()
