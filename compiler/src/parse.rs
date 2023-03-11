@@ -94,7 +94,7 @@ fn _parse_parameters(tokens: &[Token]) -> Result<(&[Token], Vec<String>), ParseE
                 temp = &temp[1..]; // Skip CloseParen
                 break;
             }
-            Some(tok @ Token::Atom(Atom::Name(name))) => {
+            Some(Token::Atom(Atom::Name(name))) => {
                 temp = &temp[1..];
                 parameters.push(name.clone());
             }
