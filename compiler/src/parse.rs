@@ -17,7 +17,6 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
 
             while temp.len() > 0 {
                 if let Some(Token::CloseParen) = temp.first() {
-                    temp = &temp[1..]; // Skip CloseParen
                     break;
                 }
 
@@ -26,8 +25,11 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
                 expressions.push(expr);
             }
 
-            let res = Ok((temp, Expression::Call(name.clone(), expressions)));
-            return res;
+            if let Some(Token::CloseParen) = temp.first() {
+                return Ok((&temp[1..], Expression::Call(name.clone(), expressions)));
+            }
+
+            Err(ParseError::ExpressionNotClosed)
         }
         [Token::OpenParen, Token::If, rest @ ..] => {
             let (after_condition, condition) = _parse_expression(rest)?;

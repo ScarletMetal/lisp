@@ -9,7 +9,6 @@ use lisp::{Expression, Literal};
 pub enum EvalError {
     BadArguments,
     UndefinedBehaviour,
-    UnknownFunction(String),
     NameNotFound(String),
     NotCallable(String),
 }
@@ -50,6 +49,11 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
         Expression::Call(name, children) => {
             match context.lookup_local(name) {
                 Some(Value::Symbol(function)) => {
+
+                    if !function.get_arguments_size().contains(children.len()) {
+                        return Err(EvalError::BadArguments);
+                    }
+
                     context.add_frame(EvalFrame::new());
                     let res = function.eval(children, context);
                     context.pop_frame();
