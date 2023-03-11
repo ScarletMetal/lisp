@@ -22,7 +22,7 @@ impl Function for SetQFunction {
             [Expression::Name(name), expr] => {
                 let value = eval(expr, context)?;
                 context
-                    .current_mut()
+                    .root_mut()
                     .locals
                     .insert(name.clone(), value.clone());
                 Ok(value.clone())

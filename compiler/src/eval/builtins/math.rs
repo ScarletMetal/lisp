@@ -1,7 +1,7 @@
 use lisp::{Expression, Literal};
 
 use crate::eval::{
-    builtins::eval_args, frame::EvalContext, ArgumentsSize, EvalError, Function, Value
+    builtins::eval_args, frame::EvalContext, ArgumentsSize, EvalError, Function, Value,
 };
 
 pub struct AddFunction {}
@@ -51,19 +51,21 @@ impl Function for SubFunction {
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         match &args[..] {
-            [Value::Literal(Literal::Number(_)), Value::Literal(Literal::Number(_)), ..] => {
-                let numbers = args
-                    .iter()
-                    .map(|val| match val {
-                        Value::Literal(Literal::Number(num)) => Ok(*num),
-                        _ => Err(EvalError::UndefinedBehaviour),
-                    })
-                    .collect::<Result<Vec<f64>, EvalError>>()?;
+            [Value::Literal(Literal::Number(first)), rest @ ..] => {
+                if rest.iter().any(|value| match value {
+                    Value::Literal(Literal::Number(_)) => false,
+                    _ => true,
+                }) {
+                    return Err(EvalError::UndefinedBehaviour);
+                }
 
                 Ok(Value::Literal(Literal::Number(
-                    numbers[1..]
-                        .iter()
-                        .fold(*numbers.first().unwrap(), |acc, val| acc - val),
+                    rest.iter()
+                        .filter_map(|value| match value {
+                            Value::Literal(Literal::Number(n)) => Some(*n),
+                            _ => None,
+                        })
+                        .fold(*first, |acc, val| acc - val),
                 )))
             }
             _ => Err(EvalError::UndefinedBehaviour),

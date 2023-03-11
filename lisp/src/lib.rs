@@ -6,6 +6,7 @@ pub enum Token {
     CloseParen,
     Atom(Atom),
     Defun,
+    Lambda,
     If,
 }
 
@@ -29,7 +30,8 @@ pub enum Expression {
     Name(String),
     Call(String, Vec<Expression>),
     If(Box<Expression>, Box<Expression>, Option<Box<Expression>>),
-    Function(String, Vec<String>, Box<Expression>)
+    Function(String, Vec<String>, Box<Expression>),
+    Lambda(Vec<String>, Box<Expression>)
 }
 
 impl std::fmt::Display for Literal {

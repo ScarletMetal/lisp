@@ -1,4 +1,7 @@
-use crate::eval::{frame::EvalContext, EvalError, ArgumentsSize, Function, Value};
+use crate::eval::{
+    frame::{EvalContext, EvalFrame},
+    ArgumentsSize, EvalError, Function, Value,
+};
 use lisp::Expression;
 
 use super::builtins::eval_args;
@@ -11,7 +14,10 @@ pub struct CustomFunction {
 
 impl CustomFunction {
     pub fn new(parameters: Vec<String>, code: Expression) -> Self {
-        Self { parameter_names: parameters, code }
+        Self {
+            parameter_names: parameters,
+            code,
+        }
     }
 }
 
@@ -26,15 +32,16 @@ impl Function for CustomFunction {
         context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
-        let current_frame = context.current_mut();
-        let names_to_values: Vec<(String, Value)> = self.parameter_names.iter()
-            .map(Clone::clone)
-            .zip(args.iter().map(Clone::clone))
-            .collect();
 
-        for (key, value) in names_to_values {
-            current_frame.locals.insert(key, value);
-        }
-        return eval(&self.code, context);
+        context.add_frame(EvalFrame::new(
+            self.parameter_names
+                .iter()
+                .map(Clone::clone)
+                .zip(args.into_iter())
+                .collect(),
+        ));
+        let result = eval(&self.code, context);
+        context.pop_frame();
+        result
     }
 }

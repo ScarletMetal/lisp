@@ -122,6 +122,9 @@ fn _lex_literal(name: &str, tokens: &mut Vec<Token>) {
         "if" => {
             tokens.push(Token::If);
         }
+        "lambda" => {
+            tokens.push(Token::Lambda);
+        }
         _ => {
             tokens.push(Token::Atom(Atom::Name(String::from(name))));
         }
@@ -154,7 +157,7 @@ pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {
                 _lex_number(&raw_number, &mut tokens)?;
             }
             Some(c) if _is_valid_literal_start(c) => {
-                let literal = _scan_literal(&mut scanner)?;
+                let literal = _scan_literal(&mut scanner)?.to_lowercase();
                 _lex_literal(&literal, &mut tokens);
             }
             _ => {

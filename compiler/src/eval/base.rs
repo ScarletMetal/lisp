@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
-use crate::eval::Value;
 use crate::eval::custom::CustomFunction;
-use crate::eval::frame::{EvalContext, EvalFrame};
+use crate::eval::frame::EvalContext;
+use crate::eval::Value;
 use lisp::{Expression, Literal};
 
 #[derive(Debug)]
@@ -46,23 +46,17 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
         Expression::Literal(literal) => {
             return Ok(Value::Literal(literal.clone()));
         }
-        Expression::Call(name, children) => {
-            match context.lookup_local(name) {
-                Some(Value::Symbol(function)) => {
-
-                    if !function.get_arguments_size().contains(children.len()) {
-                        return Err(EvalError::BadArguments);
-                    }
-
-                    context.add_frame(EvalFrame::new());
-                    let res = function.eval(children, context);
-                    context.pop_frame();
-                    res
+        Expression::Call(name, children) => match context.lookup_local(name) {
+            Some(Value::Symbol(function)) => {
+                if !function.get_arguments_size().contains(children.len()) {
+                    return Err(EvalError::BadArguments);
                 }
-                Some(Value::Literal(_)) => Err(EvalError::NotCallable(name.clone())),
-                None => Err(EvalError::NameNotFound(name.clone())),
+
+                function.eval(children, context)
             }
-        }
+            Some(Value::Literal(_)) => Err(EvalError::NotCallable(name.clone())),
+            None => Err(EvalError::NameNotFound(name.clone())),
+        },
         Expression::If(condition, if_case, else_or_none) => {
             if let Value::Literal(Literal::True) = eval(condition, context)? {
                 eval(if_case, context)
@@ -76,11 +70,13 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
         }
         Expression::Function(name, parameters, code) => {
             let function = CustomFunction::new(parameters.clone(), (**code).clone());
-            context
-                .root_mut()
-                .locals
-                .insert(name.clone(), Value::Symbol(Rc::new(function)));
-            Ok(Value::Literal(Literal::True))
+            let value = Value::Symbol(Rc::new(function));
+            context.add_function(&name, &value);
+            Ok(value)
         }
+        Expression::Lambda(parameters, code) => Ok(Value::Symbol(Rc::new(CustomFunction::new(
+            parameters.clone(),
+            (**code).clone(),
+        )))),
     }
 }

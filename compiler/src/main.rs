@@ -31,7 +31,7 @@ fn _prompt() -> std::io::Result<String> {
 
 fn repl() -> std::io::Result<()> {
     println!("==== Welcome To Lisp! ====");
-    let frame = eval::frame::EvalFrame::new();
+    let frame = eval::frame::EvalFrame::default();
     let mut context = eval::frame::EvalContext::new(frame);
 
     loop {
@@ -42,7 +42,7 @@ fn repl() -> std::io::Result<()> {
 
 fn execute_file(path: &str) -> std::io::Result<()> {
     let source = fs::read_to_string(path)?;
-    let frame = eval::frame::EvalFrame::new();
+    let frame = eval::frame::EvalFrame::default();
     let mut context = eval::frame::EvalContext::new(frame);
     _run_source(&source, &mut context, false);
 
@@ -53,7 +53,7 @@ fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     match &args[..] {
-        [.., path] => execute_file(path),
+        [.., _, path] => execute_file(path),
         _ => repl()
     }
 }

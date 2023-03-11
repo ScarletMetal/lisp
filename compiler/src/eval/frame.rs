@@ -12,6 +12,7 @@ pub struct EvalFrame {
 pub struct EvalContext {
     frames: LinkedList<EvalFrame>,
     builtins: HashMap<String, Value>,
+    functions_index: HashMap<String, Value>,
 }
 
 impl fmt::Debug for EvalFrame {
@@ -23,10 +24,14 @@ impl fmt::Debug for EvalFrame {
 }
 
 impl EvalFrame {
-    pub fn new() -> Self {
+    pub fn new(locals: HashMap<String, Value>) -> Self {
         Self {
-            locals: HashMap::new()
+            locals
         }
+    }
+
+    pub fn default() -> Self {
+        Self::new(HashMap::new())
     }
 }
 
@@ -35,6 +40,7 @@ impl EvalContext {
         Self {
             frames: LinkedList::from([root]),
             builtins: create_builtins_map(),
+            functions_index: HashMap::new(),
         }
     }
 
@@ -46,7 +52,16 @@ impl EvalContext {
         self.frames.pop_front();
     }
 
+    pub fn add_function(&mut self, name: &String, value: &Value) {
+        self.root_mut().locals.insert(name.clone(), value.clone());
+        self.functions_index.insert(name.clone(), value.clone());
+    }
+
     pub fn lookup_local(&self, name: &str) -> Option<Value> {
+        if let Some(function) = self.functions_index.get(name) {
+            return Some(function.clone());
+        }
+
         if let Some(value) = self.builtins.get(name) {
             return Some(value.clone());
         }
@@ -65,7 +80,4 @@ impl EvalContext {
         self.frames.back_mut().unwrap()
     }
 
-    pub fn current_mut(&mut self) -> &mut EvalFrame {
-        self.frames.front_mut().unwrap()
-    }
 }
