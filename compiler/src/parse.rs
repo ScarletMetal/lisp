@@ -1,4 +1,4 @@
-use crate::lisp::{Atom, Expression, Token, Value};
+use crate::lisp::{Atom, Expression, Token};
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -83,7 +83,7 @@ fn _parse_expression<'a>(tokens: &'a [Token]) -> Result<ParseResult, ParseError>
             }
             return Err(ParseError::ExpressionNotClosed);
         }
-        [Token::Atom(Atom::Value(Value::Literal(literal))), rest @ ..] => {
+        [Token::Atom(Atom::Literal(literal)), rest @ ..] => {
             Ok((rest, Expression::Literal(literal.clone())))
         }
         [Token::Atom(Atom::Name(name)), rest @ ..] => Ok((rest, Expression::Name(name.clone()))),

@@ -1,10 +1,8 @@
-use lisp::{Expression, Literal, Value};
+use lisp::{Expression, Literal};
 
-use super::eval_args;
-use crate::eval::eval;
-use crate::eval::frame::EvalContext;
-use crate::eval::Function;
-use crate::eval::{ArgumentsSize, EvalError};
+use crate::eval::{
+    builtins::eval_args, eval, frame::EvalContext, ArgumentsSize, EvalError, Function, Value,
+};
 
 pub struct SetQFunction {}
 pub struct ConcatenateFunction {}
@@ -47,7 +45,9 @@ impl Function for ConcatenateFunction {
         let args = eval_args(arguments, context)?;
 
         match &args[..] {
-            [_, ..] => Ok(Value::Literal(Literal::String(args.iter().map(Value::to_string).collect()))),
+            [_, ..] => Ok(Value::Literal(Literal::String(
+                args.iter().map(Value::to_string).collect(),
+            ))),
             _ => Err(EvalError::UndefinedBehaviour),
         }
     }

@@ -1,5 +1,5 @@
-use crate::eval::{frame::EvalContext, ArgumentsSize, Function};
-use lisp::{Expression, Value};
+use crate::eval::{frame::EvalContext, EvalError, ArgumentsSize, Function, Value};
+use lisp::Expression;
 
 use super::builtins::eval_args;
 use super::eval;
@@ -24,7 +24,7 @@ impl Function for CustomFunction {
         &self,
         arguments: &[Expression],
         context: &mut EvalContext,
-    ) -> Result<crate::lisp::Value, super::EvalError> {
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         let current_frame = context.current_mut();
         let names_to_values: Vec<(String, Value)> = self.parameter_names.iter()

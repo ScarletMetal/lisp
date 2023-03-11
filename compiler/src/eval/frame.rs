@@ -2,8 +2,7 @@ use std::collections::{HashMap, LinkedList};
 use std::fmt;
 use std::rc::Rc;
 
-use crate::eval::{builtins::create_builtins_map, Function};
-use lisp::Value;
+use crate::eval::{builtins::create_builtins_map, Function, Value};
 
 #[derive(Clone)]
 pub struct EvalFrame {

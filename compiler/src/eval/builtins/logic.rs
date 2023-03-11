@@ -1,7 +1,8 @@
-use lisp::{Literal, Value};
+use lisp::Literal;
 
-use super::eval_args;
-use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function};
+use crate::eval::{
+    builtins::eval_args, frame::EvalContext, ArgumentsSize, EvalError, Function, Value,
+};
 
 #[derive(Debug)]
 pub struct EqFunction {}
@@ -23,7 +24,7 @@ impl Function for EqFunction {
         &self,
         arguments: &[crate::lisp::Expression],
         context: &mut EvalContext,
-    ) -> Result<crate::lisp::Value, EvalError> {
+    ) -> Result<Value, EvalError> {
         let args = eval_args(arguments, context)?;
         let value = args[1..].iter().all(|item| item == args.first().unwrap());
         Ok(if value {

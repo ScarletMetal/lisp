@@ -11,7 +11,7 @@ pub enum Token {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Atom {
-    Value(Value),
+    Literal(Literal),
     Name(String),
 }
 
@@ -21,11 +21,6 @@ pub enum Literal {
     Number(f64),
     True,
     Nil
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub enum Value {
-    Literal(Literal)
 }
 
 #[derive(Clone, Debug)]
@@ -49,10 +44,3 @@ impl std::fmt::Display for Literal {
     }
 }
 
-impl std::fmt::Display for Value {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Value::Literal(literal) => literal.fmt(f)
-        }
-    }
-}

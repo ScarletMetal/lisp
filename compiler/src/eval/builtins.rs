@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::eval::base::{eval, EvalError, Function};
-use lisp::{Expression, Value};
+use crate::eval::{eval, EvalError, Function, Value};
+use lisp::Expression;
 
 use super::frame::EvalContext;
 

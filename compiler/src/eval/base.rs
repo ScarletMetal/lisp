@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
+use crate::eval::Value;
 use crate::eval::custom::CustomFunction;
 use crate::eval::frame::{EvalContext, EvalFrame};
-use lisp::{Expression, Literal, Value};
+use lisp::{Expression, Literal};
 
 #[derive(Debug)]
 pub enum EvalError {

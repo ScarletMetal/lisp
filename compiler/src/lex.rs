@@ -1,4 +1,4 @@
-use crate::lisp::{Atom, Literal, Token, Value};
+use crate::lisp::{Atom, Literal, Token};
 use crate::scan::Scanner;
 
 #[derive(Debug)]
@@ -101,7 +101,7 @@ fn _scan_number(scanner: &mut Scanner<char>) -> Result<String, LexError> {
 
 fn _lex_number(raw_number: &str, tokens: &mut Vec<Token>) -> Result<(), LexError> {
     if let Ok(value) = raw_number.parse::<f64>() {
-        tokens.push(Token::Atom(Atom::Value(Value::Literal(Literal::Number(value)))));
+        tokens.push(Token::Atom(Atom::Literal(Literal::Number(value))));
         return Ok(());
     }
 
@@ -111,10 +111,10 @@ fn _lex_number(raw_number: &str, tokens: &mut Vec<Token>) -> Result<(), LexError
 fn _lex_literal(name: &str, tokens: &mut Vec<Token>) {
     match name {
         "t" => {
-            tokens.push(Token::Atom(Atom::Value(Value::Literal(Literal::True))));
+            tokens.push(Token::Atom(Atom::Literal(Literal::True)));
         }
         "nil" => {
-            tokens.push(Token::Atom(Atom::Value(Value::Literal(Literal::Nil))));
+            tokens.push(Token::Atom(Atom::Literal(Literal::Nil)));
         }
         "defun" => {
             tokens.push(Token::Defun);
@@ -147,7 +147,7 @@ pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {
             Some(c) if c == '\'' || c == '"' => {
                 scanner.pop();
                 let string = _scan_until(&mut scanner, c)?;
-                tokens.push(Token::Atom(Atom::Value(Value::Literal(Literal::String(string)))));
+                tokens.push(Token::Atom(Atom::Literal(Literal::String(string))));
             }
             Some(c) if c.is_numeric() => {
                 let raw_number = _scan_number(&mut scanner)?;
