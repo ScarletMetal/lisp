@@ -6,14 +6,13 @@ use crate::eval::{builtins::create_builtins_map, Function, Value};
 
 #[derive(Clone)]
 pub struct EvalFrame {
-    pub functions: HashMap<String, Rc<dyn Function>>,
     pub locals: HashMap<String, Value>,
 }
 
 #[derive(Clone)]
 pub struct EvalContext {
     frames: LinkedList<EvalFrame>,
-    builtins: HashMap<String, Rc<dyn Function>>,
+    builtins: HashMap<String, Value>,
 }
 
 impl fmt::Debug for EvalFrame {
@@ -27,8 +26,7 @@ impl fmt::Debug for EvalFrame {
 impl EvalFrame {
     pub fn new() -> Self {
         Self {
-            functions: HashMap::new(),
-            locals: HashMap::new(),
+            locals: HashMap::new()
         }
     }
 }
@@ -49,21 +47,11 @@ impl EvalContext {
         self.frames.pop_front();
     }
 
-    pub fn lookup_function(&self, name: &str) -> Option<Rc<dyn Function>> {
-        if let Some(func) = self.builtins.get(name) {
-            return Some(func.clone());
+    pub fn lookup_local(&self, name: &str) -> Option<Value> {
+        if let Some(value) = self.builtins.get(name) {
+            return Some(value.clone());
         }
 
-        for frame in self.frames.iter() {
-            if let Some(func) = frame.functions.get(name) {
-                return Some(func.clone());
-            }
-        }
-
-        None
-    }
-
-    pub fn lookup_variable(&self, name: &str) -> Option<Value> {
         for frame in self.frames.iter() {
             if let Some(var) = frame.locals.get(name) {
                 let val = Some(var.clone());

@@ -11,6 +11,7 @@ pub enum EvalError {
     UndefinedBehaviour,
     UnknownFunction(String),
     NameNotFound(String),
+    NotCallable(String),
 }
 
 #[derive(Debug)]
@@ -37,7 +38,7 @@ pub trait Function {
 pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalError> {
     match expr {
         Expression::Name(name) => {
-            if let Some(value) = context.lookup_variable(name) {
+            if let Some(value) = context.lookup_local(name) {
                 return Ok(value.clone());
             } else {
                 return Err(EvalError::NameNotFound(name.clone()));
@@ -46,18 +47,16 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
         Expression::Literal(literal) => {
             return Ok(Value::Literal(literal.clone()));
         }
-        Expression::Call(literal, children) => {
-            if let Some(function) = context.lookup_function(literal) {
-                if !function.get_arguments_size().contains(children.len()) {
-                    return Err(EvalError::BadArguments);
+        Expression::Call(name, children) => {
+            match context.lookup_local(name) {
+                Some(Value::Symbol(function)) => {
+                    context.add_frame(EvalFrame::new());
+                    let res = function.eval(children, context);
+                    context.pop_frame();
+                    res
                 }
-
-                context.add_frame(EvalFrame::new());
-                let res = function.eval(children, context);
-                context.pop_frame();
-                res
-            } else {
-                return Err(EvalError::UnknownFunction(literal.clone()));
+                Some(Value::Literal(_)) => Err(EvalError::NotCallable(name.clone())),
+                None => Err(EvalError::NameNotFound(name.clone())),
             }
         }
         Expression::If(condition, if_case, else_or_none) => {
@@ -75,8 +74,8 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
             let function = CustomFunction::new(parameters.clone(), (**code).clone());
             context
                 .root_mut()
-                .functions
-                .insert(name.clone(), Rc::new(function));
+                .locals
+                .insert(name.clone(), Value::Symbol(Rc::new(function)));
             Ok(Value::Literal(Literal::True))
         }
     }
