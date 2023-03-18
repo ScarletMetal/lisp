@@ -1,7 +1,12 @@
 use std::collections::{HashMap, LinkedList};
 use std::fmt;
+use std::rc::Rc;
 
-use crate::eval::{builtins::create_builtins_map, Value};
+use crate::eval::{
+    function::builtin::create_builtin_functions_map,
+    operator::{create_operators_map, Operator},
+    Value,
+};
 
 #[derive(Clone)]
 pub struct EvalFrame {
@@ -13,6 +18,7 @@ pub struct EvalContext {
     frames: LinkedList<EvalFrame>,
     builtins: HashMap<String, Value>,
     functions_index: HashMap<String, Value>,
+    operators: HashMap<String, Rc<dyn Operator>>,
 }
 
 impl fmt::Debug for EvalFrame {
@@ -25,12 +31,10 @@ impl fmt::Debug for EvalFrame {
 
 impl EvalFrame {
     pub fn new(locals: HashMap<String, Value>) -> Self {
-        Self {
-            locals
-        }
+        Self { locals }
     }
 
-    pub fn default() -> Self {
+    pub fn empty() -> Self {
         Self::new(HashMap::new())
     }
 }
@@ -39,8 +43,9 @@ impl EvalContext {
     pub fn new(root: EvalFrame) -> Self {
         Self {
             frames: LinkedList::from([root]),
-            builtins: create_builtins_map(),
+            builtins: create_builtin_functions_map(),
             functions_index: HashMap::new(),
+            operators: create_operators_map(),
         }
     }
 
@@ -76,8 +81,15 @@ impl EvalContext {
         None
     }
 
+    pub fn lookup_operator(&mut self, name: &String) -> Option<Rc<dyn Operator>> {
+        self.operators.get(name).map(Clone::clone)
+    }
+
     pub fn root_mut(&mut self) -> &mut EvalFrame {
         self.frames.back_mut().unwrap()
     }
 
+    pub fn head_mut(&mut self) -> &mut EvalFrame {
+        self.frames.front_mut().unwrap()
+    }
 }

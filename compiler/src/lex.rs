@@ -147,6 +147,14 @@ pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {
                 scanner.pop();
                 tokens.push(Token::CloseParen);
             }
+            Some('`') => {
+                scanner.pop();
+                tokens.push(Token::Backtick);
+            }
+            Some(',') => {
+                scanner.pop();
+                tokens.push(Token::Comma);
+            }
             Some(c) if c == '\'' || c == '"' => {
                 scanner.pop();
                 let string = _scan_until(&mut scanner, c)?;

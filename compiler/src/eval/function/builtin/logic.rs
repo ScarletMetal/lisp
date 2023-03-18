@@ -1,8 +1,6 @@
 use lisp::Literal;
 
-use crate::eval::{
-    builtins::eval_args, frame::EvalContext, ArgumentsSize, EvalError, Function, Value,
-};
+use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function, Value};
 
 #[derive(Debug)]
 pub struct EqFunction {}
@@ -20,13 +18,10 @@ impl Function for EqFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(
-        &self,
-        arguments: &[crate::lisp::Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        let value = args[1..].iter().all(|item| item == args.first().unwrap());
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        let value = arguments[1..]
+            .iter()
+            .all(|item| item == arguments.first().unwrap());
         Ok(if value {
             Value::Literal(Literal::True)
         } else {
@@ -40,13 +35,8 @@ impl Function for GreaterFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(
-        &self,
-        arguments: &[crate::lisp::Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left > right {
                     Value::Literal(Literal::True)
@@ -64,13 +54,8 @@ impl Function for LessFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(
-        &self,
-        arguments: &[crate::lisp::Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left < right {
                     Value::Literal(Literal::True)
@@ -88,13 +73,8 @@ impl Function for GreaterEqFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(
-        &self,
-        arguments: &[crate::lisp::Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left >= right {
                     Value::Literal(Literal::True)
@@ -112,13 +92,8 @@ impl Function for LessEqFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(
-        &self,
-        arguments: &[crate::lisp::Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left <= right {
                     Value::Literal(Literal::True)

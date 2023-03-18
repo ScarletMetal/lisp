@@ -1,9 +1,10 @@
 use std::rc::Rc;
 
-use crate::eval::custom::CustomFunction;
-use crate::eval::frame::EvalContext;
-use crate::eval::Value;
+use crate::eval::{frame::EvalContext, function::custom::CustomFunction, Value};
+use crate::parse::ParseError;
 use lisp::{Expression, Literal};
+
+use super::invoke_function;
 
 #[derive(Debug)]
 pub enum EvalError {
@@ -11,6 +12,7 @@ pub enum EvalError {
     UndefinedBehaviour,
     NameNotFound(String),
     NotCallable(String),
+    ParseError(ParseError),
 }
 
 #[derive(Debug)]
@@ -19,22 +21,9 @@ pub enum ArgumentsSize {
     Range(std::ops::RangeFrom<usize>),
 }
 
-impl ArgumentsSize {
-    pub fn contains(&self, value: usize) -> bool {
-        match self {
-            ArgumentsSize::Exact(exact_size) => value == *exact_size,
-            ArgumentsSize::Range(range) => range.contains(&value),
-        }
-    }
-}
+pub type EvalResult = Result<Value, EvalError>;
 
-pub trait Function {
-    fn get_arguments_size(&self) -> ArgumentsSize;
-    fn eval(&self, arguments: &[Expression], context: &mut EvalContext)
-        -> Result<Value, EvalError>;
-}
-
-pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalError> {
+pub fn eval(expr: &Expression, context: &mut EvalContext) -> EvalResult {
     match expr {
         Expression::Name(name) => {
             if let Some(value) = context.lookup_local(name) {
@@ -46,17 +35,20 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> Result<Value, EvalE
         Expression::Literal(literal) => {
             return Ok(Value::Literal(literal.clone()));
         }
-        Expression::Call(name, children) => match context.lookup_local(name) {
-            Some(Value::Symbol(function)) => {
-                if !function.get_arguments_size().contains(children.len()) {
-                    return Err(EvalError::BadArguments);
-                }
-
-                function.eval(children, context)
+        Expression::Invoke(name, tokens) => {
+            if let Some(operator) = context.lookup_operator(name) {
+                return operator.eval(tokens, context);
             }
-            Some(Value::Literal(_)) => Err(EvalError::NotCallable(name.clone())),
-            None => Err(EvalError::NameNotFound(name.clone())),
-        },
+            if let Some(Value::Symbol(function)) = context.lookup_local(name) {
+                return invoke_function(&*function, tokens, context);
+            }
+
+            match context.lookup_local(name) {
+                Some(Value::Symbol(function)) => invoke_function(&*function, tokens, context),
+                Some(_) => Err(EvalError::NotCallable(name.clone())),
+                _ => Err(EvalError::NameNotFound(name.clone()))
+            }
+        }
         Expression::If(condition, if_case, else_or_none) => {
             if let Value::Literal(Literal::True) = eval(condition, context)? {
                 eval(if_case, context)

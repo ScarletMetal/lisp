@@ -1,8 +1,6 @@
-use lisp::{Expression, Literal};
+use lisp::Literal;
 
-use crate::eval::{
-    builtins::eval_args, frame::EvalContext, ArgumentsSize, EvalError, Function, Value,
-};
+use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function, Value};
 
 pub struct AddFunction {}
 pub struct SubFunction {}
@@ -14,13 +12,8 @@ impl Function for AddFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
                     Value::Literal(Literal::Number(_)) => false,
@@ -48,13 +41,8 @@ impl Function for SubFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
                     Value::Literal(Literal::Number(_)) => false,
@@ -82,13 +70,8 @@ impl Function for MulFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
                     Value::Literal(Literal::Number(_)) => false,
@@ -116,13 +99,8 @@ impl Function for DivFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
                     Value::Literal(Literal::Number(_)) => false,

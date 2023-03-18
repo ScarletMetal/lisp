@@ -7,6 +7,8 @@ pub enum Token {
     Atom(Atom),
     Defun,
     Lambda,
+    Backtick,
+    Comma,
     If,
 }
 
@@ -28,7 +30,7 @@ pub enum Literal {
 pub enum Expression {
     Literal(Literal),
     Name(String),
-    Call(String, Vec<Expression>),
+    Invoke(String, Vec<Token>),
     If(Box<Expression>, Box<Expression>, Option<Box<Expression>>),
     Function(String, Vec<String>, Box<Expression>),
     Lambda(Vec<String>, Box<Expression>)

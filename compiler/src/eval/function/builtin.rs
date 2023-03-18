@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::eval::{eval, EvalError, Function, Value};
-use lisp::Expression;
-
-use super::frame::EvalContext;
+use crate::eval::{Function, Value};
 
 pub mod io;
 pub mod logic;
@@ -16,14 +13,7 @@ pub use logic::*;
 pub use math::*;
 pub use misc::*;
 
-pub fn eval_args(
-    arguments: &[Expression],
-    context: &mut EvalContext,
-) -> Result<Vec<Value>, EvalError> {
-    arguments.iter().map(|arg| eval(arg, context)).collect()
-}
-
-pub fn create_builtins_map() -> HashMap<String, Value> {
+pub fn create_builtin_functions_map() -> HashMap<String, Value> {
     HashMap::from([
         (
             String::from("+"),
@@ -40,10 +30,6 @@ pub fn create_builtins_map() -> HashMap<String, Value> {
         (
             String::from("/"),
             Value::Symbol(Rc::new(DivFunction {}) as Rc<dyn Function>),
-        ),
-        (
-            String::from("setq"),
-            Value::Symbol(Rc::new(SetQFunction {}) as Rc<dyn Function>),
         ),
         (
             String::from("concatenate"),
@@ -76,10 +62,6 @@ pub fn create_builtins_map() -> HashMap<String, Value> {
         (
             String::from("read"),
             Value::Symbol(Rc::new(ReadFunction {}) as Rc<dyn Function>),
-        ),
-        (
-            String::from("progn"),
-            Value::Symbol(Rc::new(ProgNFunction {}) as Rc<dyn Function>),
         ),
     ])
 }

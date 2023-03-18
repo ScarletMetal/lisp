@@ -4,7 +4,6 @@ use crate::eval::{
 };
 use lisp::Expression;
 
-use super::builtins::eval_args;
 use super::eval;
 
 pub struct CustomFunction {
@@ -28,16 +27,14 @@ impl Function for CustomFunction {
 
     fn eval(
         &self,
-        arguments: &[Expression],
+        arguments: &[Value],
         context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-
         context.add_frame(EvalFrame::new(
             self.parameter_names
                 .iter()
                 .map(Clone::clone)
-                .zip(args.into_iter())
+                .zip(arguments.iter().map(Clone::clone))
                 .collect(),
         ));
         let result = eval(&self.code, context);

@@ -1,8 +1,8 @@
 use std::io;
 
-use lisp::{Expression, Literal};
+use lisp::Literal;
 
-use crate::eval::{builtins::eval_args, frame::EvalContext, ArgumentsSize, EvalError, Function, Value};
+use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function, Value};
 
 pub struct WriteFunction {}
 pub struct ReadFunction {}
@@ -12,13 +12,8 @@ impl Function for WriteFunction {
         ArgumentsSize::Exact(1)
     }
 
-    fn eval(
-        &self,
-        arguments: &[Expression],
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
-        let args = eval_args(arguments, context)?;
-        match &args[..] {
+    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+        match &arguments[..] {
             [val] => {
                 println!("{}", val);
                 Ok(val.clone())
@@ -33,11 +28,7 @@ impl Function for ReadFunction {
         ArgumentsSize::Exact(0)
     }
 
-    fn eval(
-        &self,
-        _arguments: &[crate::lisp::Expression],
-        _context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
+    fn eval(&self, _arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
         let mut line = String::new();
         let stdin = io::stdin();
 
