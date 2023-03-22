@@ -63,5 +63,17 @@ pub fn create_builtin_functions_map() -> HashMap<String, Value> {
             String::from("read"),
             Value::Symbol(Rc::new(ReadFunction {}) as Rc<dyn Function>),
         ),
+        (
+            String::from("and"),
+            Value::Symbol(Rc::new(AndFunction {}) as Rc<dyn Function>),
+        ),
+        (
+            String::from("or"),
+            Value::Symbol(Rc::new(OrFunction {}) as Rc<dyn Function>),
+        ),
+        (
+            String::from("not"),
+            Value::Symbol(Rc::new(NotFunction {}) as Rc<dyn Function>)
+    )
     ])
 }
