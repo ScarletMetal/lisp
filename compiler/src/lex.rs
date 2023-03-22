@@ -116,15 +116,6 @@ fn _lex_literal(name: &str, tokens: &mut Vec<Token>) {
         "nil" => {
             tokens.push(Token::Atom(Atom::Literal(Literal::Nil)));
         }
-        "defun" => {
-            tokens.push(Token::Defun);
-        }
-        "if" => {
-            tokens.push(Token::If);
-        }
-        "lambda" => {
-            tokens.push(Token::Lambda);
-        }
         _ => {
             tokens.push(Token::Atom(Atom::Name(String::from(name))));
         }

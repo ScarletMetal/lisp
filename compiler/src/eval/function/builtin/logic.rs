@@ -18,7 +18,7 @@ impl Function for EqFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         let value = arguments[1..]
             .iter()
             .all(|item| item == arguments.first().unwrap());
@@ -35,7 +35,7 @@ impl Function for GreaterFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left > right {
@@ -54,7 +54,7 @@ impl Function for LessFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left < right {
@@ -73,7 +73,7 @@ impl Function for GreaterEqFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left >= right {
@@ -92,7 +92,7 @@ impl Function for LessEqFunction {
         ArgumentsSize::Exact(2)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(left)), Value::Literal(Literal::Number(right))] => {
                 Ok(if left <= right {

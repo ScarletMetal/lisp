@@ -1,13 +1,10 @@
-use lisp::{Expression, Token};
+use lisp::Expression;
 
-use crate::{
-    eval::{
-        base::{ArgumentsSize, EvalResult},
-        eval,
-        frame::EvalContext,
-        EvalError, Value,
-    },
-    parse::parse,
+use crate::eval::{
+    base::{ArgumentsSize, EvalResult},
+    eval,
+    frame::EvalContext,
+    EvalError, Value,
 };
 
 pub mod builtin;
@@ -24,7 +21,7 @@ impl ArgumentsSize {
 
 pub trait Function {
     fn get_arguments_size(&self) -> ArgumentsSize;
-    fn eval(&self, arguments: &[Value], context: &mut EvalContext) -> EvalResult;
+    fn eval(&self, arguments: Vec<Value>, context: &mut EvalContext) -> EvalResult;
 }
 
 pub fn eval_args(
@@ -36,24 +33,14 @@ pub fn eval_args(
 
 pub fn invoke_function(
     function: &dyn Function,
-    tokens: &[Token],
+    expressions: &[Expression],
     context: &mut EvalContext,
 ) -> EvalResult {
-    let argument_expressions = parse(tokens)
-        .map(|res| match res {
-            Ok(expr) => Ok(expr),
-            Err(err) => Err(EvalError::ParseError(err)),
-        })
-        .collect::<Result<Vec<Expression>, EvalError>>()?;
-
-    if !function
-        .get_arguments_size()
-        .contains(argument_expressions.len())
-    {
+    if !function.get_arguments_size().contains(expressions.len()) {
         return Err(EvalError::BadArguments);
     }
 
-    let arguments = eval_args(&argument_expressions, context)?;
+    let arguments = eval_args(&expressions, context)?;
 
-    function.eval(&arguments, context)
+    function.eval(arguments, context)
 }

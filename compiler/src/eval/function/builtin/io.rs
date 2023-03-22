@@ -12,7 +12,7 @@ impl Function for WriteFunction {
         ArgumentsSize::Exact(1)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [val] => {
                 println!("{}", val);
@@ -28,7 +28,7 @@ impl Function for ReadFunction {
         ArgumentsSize::Exact(0)
     }
 
-    fn eval(&self, _arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, _arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         let mut line = String::new();
         let stdin = io::stdin();
 

@@ -12,7 +12,7 @@ impl Function for AddFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
@@ -41,7 +41,7 @@ impl Function for SubFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
@@ -70,7 +70,7 @@ impl Function for MulFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {
@@ -99,7 +99,7 @@ impl Function for DivFunction {
         ArgumentsSize::Range(2..)
     }
 
-    fn eval(&self, arguments: &[Value], _context: &mut EvalContext) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, _context: &mut EvalContext) -> Result<Value, EvalError> {
         match &arguments[..] {
             [Value::Literal(Literal::Number(first)), rest @ ..] => {
                 if rest.iter().any(|value| match value {

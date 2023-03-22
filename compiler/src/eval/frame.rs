@@ -1,10 +1,8 @@
 use std::collections::{HashMap, LinkedList};
 use std::fmt;
-use std::rc::Rc;
 
 use crate::eval::{
     function::builtin::create_builtin_functions_map,
-    operator::{create_operators_map, Operator},
     Value,
 };
 
@@ -18,7 +16,6 @@ pub struct EvalContext {
     frames: LinkedList<EvalFrame>,
     builtins: HashMap<String, Value>,
     functions_index: HashMap<String, Value>,
-    operators: HashMap<String, Rc<dyn Operator>>,
 }
 
 impl fmt::Debug for EvalFrame {
@@ -45,7 +42,6 @@ impl EvalContext {
             frames: LinkedList::from([root]),
             builtins: create_builtin_functions_map(),
             functions_index: HashMap::new(),
-            operators: create_operators_map(),
         }
     }
 
@@ -79,10 +75,6 @@ impl EvalContext {
         }
 
         None
-    }
-
-    pub fn lookup_operator(&mut self, name: &String) -> Option<Rc<dyn Operator>> {
-        self.operators.get(name).map(Clone::clone)
     }
 
     pub fn root_mut(&mut self) -> &mut EvalFrame {

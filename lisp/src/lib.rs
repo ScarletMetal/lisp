@@ -31,9 +31,17 @@ pub enum Expression {
     Literal(Literal),
     Name(String),
     Invoke(String, Vec<Token>),
+    Call(String, Vec<Expression>),
+    Operator(Box<Operator>)
+}
+
+#[derive(Clone, Debug)]
+pub enum Operator {
+    SetQ(String, Expression),
+    ProgN(Vec<Expression>),
     If(Box<Expression>, Box<Expression>, Option<Box<Expression>>),
     Function(String, Vec<String>, Box<Expression>),
-    Lambda(Vec<String>, Box<Expression>)
+    Lambda(Vec<String>, Box<Expression>),
 }
 
 impl std::fmt::Display for Literal {

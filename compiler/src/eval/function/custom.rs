@@ -27,14 +27,14 @@ impl Function for CustomFunction {
 
     fn eval(
         &self,
-        arguments: &[Value],
+        arguments: Vec<Value>,
         context: &mut EvalContext,
     ) -> Result<Value, EvalError> {
         context.add_frame(EvalFrame::new(
             self.parameter_names
                 .iter()
                 .map(Clone::clone)
-                .zip(arguments.iter().map(Clone::clone))
+                .zip(arguments.into_iter())
                 .collect(),
         ));
         let result = eval(&self.code, context);
