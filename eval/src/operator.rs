@@ -1,8 +1,11 @@
 use lisp::{Expression, Literal, Operator};
 use std::rc::Rc;
 
-use crate::eval::{
-    eval, frame::EvalContext, function::custom::CustomFunction, EvalError, EvalResult, Value,
+use crate::{
+    base::{eval, EvalError, EvalResult},
+    frame::EvalContext,
+    function::custom::CustomFunction,
+    value::Value,
 };
 
 fn eval_setq(name: String, expr: &Expression, context: &mut EvalContext) -> EvalResult {
@@ -68,7 +71,7 @@ fn eval_lambda(
     ))))
 }
 
-pub fn eval_opeartor(operator: Operator, context: &mut EvalContext) -> EvalResult {
+pub fn eval_operator(operator: Operator, context: &mut EvalContext) -> EvalResult {
     match operator {
         Operator::SetQ(name, expr) => eval_setq(name, &expr, context),
         Operator::ProgN(expressions) => eval_progn(&expressions, context),

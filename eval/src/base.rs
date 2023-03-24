@@ -1,7 +1,10 @@
-use crate::eval::{frame::EvalContext, Value};
+use crate::{frame::EvalContext, value::Value};
 use lisp::Expression;
 
-use super::{invoke_function, eval_opeartor};
+use crate::{
+    function::{invoke_function},
+    operator::eval_operator,
+};
 
 #[derive(Debug)]
 pub enum EvalError {
@@ -25,7 +28,7 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> EvalResult {
             if let Some(value) = context.lookup_local(name) {
                 return Ok(value.clone());
             } else {
-                return Err(EvalError::NameNotFound(name.clone()));
+                return Err(EvalError::NameNotFound(String::from(name)));
             }
         }
         Expression::Literal(literal) => {
@@ -33,12 +36,10 @@ pub fn eval(expr: &Expression, context: &mut EvalContext) -> EvalResult {
         }
         Expression::Call(name, expressions) => match context.lookup_local(name) {
             Some(Value::Symbol(function)) => invoke_function(&*function, expressions, context),
-            Some(_) => Err(EvalError::NotCallable(name.clone())),
-            _ => Err(EvalError::NameNotFound(name.clone())),
-        }
-        Expression::Operator(operator) => {
-            eval_opeartor(*operator.clone(), context)
-        }
+            Some(_) => Err(EvalError::NotCallable(String::from(name))),
+            _ => Err(EvalError::NameNotFound(String::from(name))),
+        },
+        Expression::Operator(operator) => eval_operator(*operator.clone(), context),
         _ => Err(EvalError::UndefinedBehaviour),
     }
 }

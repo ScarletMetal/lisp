@@ -2,7 +2,12 @@ use std::io;
 
 use lisp::Literal;
 
-use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, Function, Value};
+use crate::{
+    base::{ArgumentsSize, EvalError},
+    frame::EvalContext,
+    function::Function,
+    value::Value,
+};
 
 pub struct WriteFunction {}
 pub struct ReadFunction {}

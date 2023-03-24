@@ -10,5 +10,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "eval"
+version = "0.1.0"
+dependencies = [
+ "compiler",
+ "lisp",
+]
+
+[[package]]
 name = "lisp"
 version = "0.1.0"

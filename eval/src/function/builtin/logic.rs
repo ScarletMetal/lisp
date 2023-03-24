@@ -1,6 +1,11 @@
 use lisp::Literal;
 
-use crate::eval::{frame::EvalContext, ArgumentsSize, EvalError, EvalResult, Function, Value};
+use crate::{
+    base::{ArgumentsSize, EvalError, EvalResult},
+    frame::EvalContext,
+    function::Function,
+    value::Value,
+};
 
 #[derive(Debug)]
 pub struct EqFunction {}
@@ -156,7 +161,7 @@ impl Function for NotFunction {
         match &arguments[..] {
             [Value::Literal(Literal::Nil)] => Ok(Value::Literal(Literal::True)),
             [_] => Ok(Value::Literal(Literal::Nil)),
-            _ => Err(EvalError::UndefinedBehaviour)
+            _ => Err(EvalError::UndefinedBehaviour),
         }
     }
 }

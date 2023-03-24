@@ -1,9 +1,9 @@
 use std::collections::{HashMap, LinkedList};
 use std::fmt;
 
-use crate::eval::{
+use crate::{
     function::builtin::create_builtin_functions_map,
-    Value,
+    value::Value,
 };
 
 #[derive(Clone)]

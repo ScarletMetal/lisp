@@ -1,10 +1,9 @@
 use lisp::Expression;
 
-use crate::eval::{
-    base::{ArgumentsSize, EvalResult},
-    eval,
+use crate::{
+    base::{eval, ArgumentsSize, EvalError, EvalResult},
     frame::EvalContext,
-    EvalError, Value,
+    value::Value,
 };
 
 pub mod builtin;

@@ -1,6 +1,8 @@
-use crate::eval::{
+use crate::{
+    base::{ArgumentsSize, EvalError},
     frame::{EvalContext, EvalFrame},
-    ArgumentsSize, EvalError, Function, Value,
+    function::Function,
+    value::Value,
 };
 use lisp::Expression;
 
@@ -25,11 +27,7 @@ impl Function for CustomFunction {
         ArgumentsSize::Exact(self.parameter_names.len())
     }
 
-    fn eval(
-        &self,
-        arguments: Vec<Value>,
-        context: &mut EvalContext,
-    ) -> Result<Value, EvalError> {
+    fn eval(&self, arguments: Vec<Value>, context: &mut EvalContext) -> Result<Value, EvalError> {
         context.add_frame(EvalFrame::new(
             self.parameter_names
                 .iter()

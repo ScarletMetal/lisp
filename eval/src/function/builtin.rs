@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::eval::{Function, Value};
+use crate::{function::Function, value::Value};
 
 pub mod io;
 pub mod logic;
@@ -73,7 +73,7 @@ pub fn create_builtin_functions_map() -> HashMap<String, Value> {
         ),
         (
             String::from("not"),
-            Value::Symbol(Rc::new(NotFunction {}) as Rc<dyn Function>)
-    )
+            Value::Symbol(Rc::new(NotFunction {}) as Rc<dyn Function>),
+        ),
     ])
 }

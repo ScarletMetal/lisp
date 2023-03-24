@@ -2,17 +2,19 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::Write;
-use lisp;
 
-mod eval;
-mod lex;
-mod parse;
-mod scan;
+use compiler::{lex, parse};
 
-fn _run_source(source: &str, context: &mut eval::frame::EvalContext, verbose: bool) {
+mod base;
+mod frame;
+mod function;
+mod operator;
+mod value;
+
+fn _run_source(source: &str, context: &mut frame::EvalContext, verbose: bool) {
     let tokens = lex::lex(source).expect("Couldnt Lex!");
     for expr in parse::parse(&tokens) {
-        let res = eval::eval(&expr.expect("Could Not Parse!"), context).expect("Couldnt Eval!");
+        let res = base::eval(&expr.expect("Could Not Parse!"), context).expect("Couldnt Eval!");
         if verbose {
             println!("{}", res);
         }
@@ -30,8 +32,8 @@ fn _prompt() -> std::io::Result<String> {
 
 fn repl() -> std::io::Result<()> {
     println!("==== Welcome To Lisp! ====");
-    let frame = eval::frame::EvalFrame::empty();
-    let mut context = eval::frame::EvalContext::new(frame);
+    let frame = frame::EvalFrame::empty();
+    let mut context = frame::EvalContext::new(frame);
 
     loop {
         let line = _prompt()?;
@@ -41,8 +43,8 @@ fn repl() -> std::io::Result<()> {
 
 fn execute_file(path: &str) -> std::io::Result<()> {
     let source = fs::read_to_string(path)?;
-    let frame = eval::frame::EvalFrame::empty();
-    let mut context = eval::frame::EvalContext::new(frame);
+    let frame = frame::EvalFrame::empty();
+    let mut context = frame::EvalContext::new(frame);
     _run_source(&source, &mut context, false);
 
     Ok(())
@@ -53,6 +55,6 @@ fn main() -> std::io::Result<()> {
 
     match &args[..] {
         [.., _, path] => execute_file(path),
-        _ => repl()
+        _ => repl(),
     }
 }

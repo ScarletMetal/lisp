@@ -1,7 +1,7 @@
 use std::fmt;
 use std::rc::Rc;
 
-use crate::eval::Function;
+use crate::function::Function;
 use lisp::Literal;
 
 #[derive(Clone)]
