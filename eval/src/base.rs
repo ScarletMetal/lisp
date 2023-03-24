@@ -2,7 +2,7 @@ use crate::{frame::EvalContext, value::Value};
 use lisp::Expression;
 
 use crate::{
-    function::{invoke_function},
+    function::invoke_function,
     operator::eval_operator,
 };
 
@@ -12,12 +12,6 @@ pub enum EvalError {
     UndefinedBehaviour,
     NameNotFound(String),
     NotCallable(String),
-}
-
-#[derive(Debug)]
-pub enum ArgumentsSize {
-    Exact(usize),
-    Range(std::ops::RangeFrom<usize>),
 }
 
 pub type EvalResult = Result<Value, EvalError>;

@@ -1,13 +1,19 @@
 use lisp::Expression;
 
 use crate::{
-    base::{eval, ArgumentsSize, EvalError, EvalResult},
+    base::{eval, EvalError, EvalResult},
     frame::EvalContext,
     value::Value,
 };
 
 pub mod builtin;
 pub mod custom;
+
+#[derive(Debug)]
+pub enum ArgumentsSize {
+    Exact(usize),
+    Range(std::ops::RangeFrom<usize>),
+}
 
 impl ArgumentsSize {
     pub fn contains(&self, value: usize) -> bool {

@@ -1,7 +1,7 @@
 use crate::{
-    base::{ArgumentsSize, EvalError},
+    base::EvalError,
     frame::{EvalContext, EvalFrame},
-    function::Function,
+    function::{ArgumentsSize, Function},
     value::Value,
 };
 use lisp::Expression;

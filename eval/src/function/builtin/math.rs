@@ -1,9 +1,9 @@
 use lisp::Literal;
 
 use crate::{
-    base::{ArgumentsSize, EvalError},
+    base::EvalError,
     frame::EvalContext,
-    function::Function,
+    function::{ArgumentsSize, Function},
     value::Value,
 };
 
