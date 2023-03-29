@@ -35,12 +35,6 @@ impl VmFrame {
 
 fn _set_register(register: &Register, value: i64, vm: &mut VmFrame) -> Result<(), ExecuteError> {
     match register {
-        Register::Arithmetic(index) if *index >= vm.registers.r.len() => {
-            return Err(ExecuteError::UnknownRegister);
-        }
-        Register::Arithmetic(index) => {
-            vm.registers.r[*index] = value;
-        }
         Register::Stack => {
             vm.registers.stack_ptr = value as usize;
         }
@@ -56,10 +50,6 @@ fn _set_register(register: &Register, value: i64, vm: &mut VmFrame) -> Result<()
 
 fn _retrive_register(register: &Register, vm: &mut VmFrame) -> Result<i64, ExecuteError> {
     match register {
-        Register::Arithmetic(index) if *index >= vm.registers.r.len() => {
-            Err(ExecuteError::UnknownRegister)
-        }
-        Register::Arithmetic(index) => Ok(vm.registers.r[*index]),
         Register::Code => Ok(vm.registers.code_ptr as i64),
         Register::Stack => Ok(vm.registers.stack_ptr as i64),
         _ => Err(ExecuteError::InvalidRegister),
@@ -69,7 +59,6 @@ fn _retrive_register(register: &Register, vm: &mut VmFrame) -> Result<i64, Execu
 fn _retrieve_value(value: &Value, vm: &mut VmFrame) -> Result<i64, ExecuteError> {
     match value {
         Value::Literal(num) => Ok(*num),
-        Value::Register(register) => _retrive_register(register, vm),
     }
 }
 
@@ -88,7 +77,7 @@ fn _push(value: i64, vm: &mut VmFrame) -> Result<(), ExecuteError> {
         return Err(ExecuteError::StackOverflow);
     }
 
-    if vm.stack.len() >= vm.registers.stack_ptr {
+    if vm.stack.len() <= vm.registers.stack_ptr {
         vm.stack.push(value);
     } else {
         vm.stack[vm.registers.stack_ptr] = value;
@@ -126,27 +115,25 @@ pub fn execute(vm: &mut VmFrame) -> Result<(), ExecuteError> {
     }
 
     match current {
-        Some(Opcode::Mov(reg, value)) => {
-            vm.registers.r[reg] = _retrieve_value(&value, vm)?;
+        Some(Opcode::BinaryAdd) => {
+            let left = _pop(vm)?;
+            let right = _pop(vm)?;
+            _push(left + right, vm)?;
         }
-        Some(Opcode::Add(left, value)) => {
-            let right = _retrieve_value(&value, vm)?;
-            vm.registers.r[left] += right;
+        Some(Opcode::BinarySub) => {
+            let left = _pop(vm)?;
+            let right = _pop(vm)?;
+            _push(left - right, vm)?;
         }
-        Some(Opcode::Sub(left, value)) => {
-            let right = _retrieve_value(&value, vm)?;
-            vm.registers.r[left] -= right;
+        Some(Opcode::BinaryMul) => {
+            let left = _pop(vm)?;
+            let right = _pop(vm)?;
+            _push(left * right, vm)?;
         }
-        Some(Opcode::Mul(left, value)) => {
-            let right = _retrieve_value(&value, vm)?;
-            vm.registers.r[left] *= right;
-        }
-        Some(Opcode::Div(left, value)) => {
-            let right = _retrieve_value(&value, vm)?;
-            if right == 0 {
-                return Err(ExecuteError::ZeroDivision);
-            }
-            vm.registers.r[left] /= right;
+        Some(Opcode::BinaryDiv) => {
+            let left = _pop(vm)?;
+            let right = _pop(vm)?;
+            _push(left / right, vm)?;
         }
         Some(Opcode::Pop(register)) => {
             let value = _pop(vm)?;

@@ -42,6 +42,7 @@ pub enum Operator {
     If(Box<Expression>, Box<Expression>, Option<Box<Expression>>),
     Function(String, Vec<String>, Box<Expression>),
     Lambda(Vec<String>, Box<Expression>),
+    // Let(Vec<(String, Expression)>),
 }
 
 impl std::fmt::Display for Literal {

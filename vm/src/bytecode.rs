@@ -1,6 +1,5 @@
 #[derive(Clone, Copy, Debug)]
 pub enum Register {
-    Arithmetic(usize),
     Flags,
     Stack,
     Code,
@@ -8,18 +7,17 @@ pub enum Register {
 
 #[derive(Clone, Copy, Debug)]
 pub enum Value {
-    Register(Register),
     Literal(i64),
 }
 
 #[derive(Clone, Copy, Debug)]
 pub enum Opcode {
     Noop,
-    Mov(usize, Value),
-    Add(usize, Value),
-    Sub(usize, Value),
-    Mul(usize, Value),
-    Div(usize, Value),
+
+    BinaryAdd,
+    BinarySub,
+    BinaryMul,
+    BinaryDiv,
 
     Push(Value),
     Pop(Register),
