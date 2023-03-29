@@ -10,6 +10,9 @@ fn main() {
         Opcode::BinaryAdd,
         Opcode::Push(Value::Literal(10)),
         Opcode::BinaryMul,
+        Opcode::Push(Value::Literal(4)),
+        Opcode::Push(Value::Literal(4)),
+        Opcode::Compare,
     ];
     let mut vm = vm::frame::VmFrame::new(code.clone());
 

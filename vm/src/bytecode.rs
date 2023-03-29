@@ -1,6 +1,5 @@
 #[derive(Clone, Copy, Debug)]
 pub enum Register {
-    Flags,
     Stack,
     Code,
 }
@@ -23,7 +22,7 @@ pub enum Opcode {
     Pop(Register),
 
     Jump(usize),
-    JumpZero(usize),
-    JumpNotZero(usize),
-    Compare(Value, Value)
+    JumpTrue(usize),
+    JumpFalse(usize),
+    Compare
 }
