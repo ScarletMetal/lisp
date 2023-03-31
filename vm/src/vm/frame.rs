@@ -1,22 +1,18 @@
-use crate::bytecode::{Opcode, Register, Value};
+use crate::bytecode::{Boolean, Opcode, Value};
 use crate::vm::vm::{ExecuteError, STACK_SIZE};
-
-pub struct VmFlags {
-    zero: u8,
-}
 
 pub struct VmRegisters {
     pub stack_ptr: usize,
     pub code_ptr: usize,
 }
 
-pub struct VmFrame {
+pub struct Vm {
     pub registers: VmRegisters,
     code: Vec<Opcode>,
-    pub stack: Vec<i64>,
+    pub stack: Vec<Value>,
 }
 
-impl VmFrame {
+impl Vm {
     pub fn new(code: Vec<Opcode>) -> Self {
         Self {
             code,
@@ -28,7 +24,7 @@ impl VmFrame {
         }
     }
 
-    pub fn pop(&mut self) -> Result<i64, ExecuteError> {
+    pub fn pop(&mut self) -> Result<Value, ExecuteError> {
         if self.registers.stack_ptr == 0 {
             return Err(ExecuteError::EmptyStack);
         }
@@ -38,7 +34,7 @@ impl VmFrame {
         return Ok(value);
     }
 
-    fn push(&mut self, value: i64) -> Result<(), ExecuteError> {
+    fn push(&mut self, value: Value) -> Result<(), ExecuteError> {
         if self.registers.stack_ptr >= STACK_SIZE {
             return Err(ExecuteError::StackOverflow);
         }
@@ -52,28 +48,9 @@ impl VmFrame {
         self.registers.stack_ptr += 1;
         Ok(())
     }
-
-    fn set_register(&mut self, register: &Register, value: i64) -> Result<(), ExecuteError> {
-        match register {
-            Register::Stack => {
-                self.registers.stack_ptr = value as usize;
-            }
-            Register::Code => {
-                self.registers.code_ptr = value as usize;
-            }
-        }
-        Ok(())
-    }
-
-    fn retrieve_register(&mut self, register: &Register) -> Result<i64, ExecuteError> {
-        match register {
-            Register::Code => Ok(self.registers.code_ptr as i64),
-            Register::Stack => Ok(self.registers.stack_ptr as i64),
-        }
-    }
 }
 
-pub fn execute(vm: &mut VmFrame) -> Result<(), ExecuteError> {
+pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
     let current = { vm.code.get(vm.registers.code_ptr).map(Clone::clone) };
 
     match current {
@@ -82,7 +59,7 @@ pub fn execute(vm: &mut VmFrame) -> Result<(), ExecuteError> {
             return Ok(());
         }
         Some(Opcode::JumpTrue(offset)) => {
-            if vm.pop()? == 1 {
+            if let Value::Boolean(Boolean::True) = vm.pop()? {
                 vm.registers.code_ptr = offset;
             } else {
                 vm.registers.code_ptr += 1;
@@ -90,7 +67,7 @@ pub fn execute(vm: &mut VmFrame) -> Result<(), ExecuteError> {
             return Ok(());
         }
         Some(Opcode::JumpFalse(offset)) => {
-            if vm.pop()? == 0 {
+            if let Value::Boolean(Boolean::False) = vm.pop()? {
                 vm.registers.code_ptr = offset;
             } else {
                 vm.registers.code_ptr += 1;
@@ -104,37 +81,66 @@ pub fn execute(vm: &mut VmFrame) -> Result<(), ExecuteError> {
         Some(Opcode::BinaryAdd) => {
             let left = vm.pop()?;
             let right = vm.pop()?;
-            vm.push(left + right)?;
+            match &[left, right] {
+                [Value::Literal(left_value), Value::Literal(right_value)] => {
+                    vm.push(Value::Literal(left_value + right_value))?;
+                }
+                _ => {
+                    return Err(ExecuteError::InvalidValue);
+                }
+            }
         }
         Some(Opcode::BinarySub) => {
             let left = vm.pop()?;
             let right = vm.pop()?;
-            vm.push(left - right)?;
+            match &[left, right] {
+                [Value::Literal(left_value), Value::Literal(right_value)] => {
+                    vm.push(Value::Literal(left_value - right_value))?;
+                }
+                _ => {
+                    return Err(ExecuteError::InvalidValue);
+                }
+            }
         }
         Some(Opcode::BinaryMul) => {
             let left = vm.pop()?;
             let right = vm.pop()?;
-            vm.push(left * right)?;
+            match &[left, right] {
+                [Value::Literal(left_value), Value::Literal(right_value)] => {
+                    vm.push(Value::Literal(left_value * right_value))?;
+                }
+                _ => {
+                    return Err(ExecuteError::InvalidValue);
+                }
+            }
         }
         Some(Opcode::BinaryDiv) => {
             let left = vm.pop()?;
             let right = vm.pop()?;
-            vm.push(left / right)?;
-        }
-        Some(Opcode::Pop(register)) => {
-            let value = vm.pop()?;
-            vm.set_register(&register, value);
-        }
-        Some(Opcode::Push(value)) => match value {
-            Value::Literal(number) => {
-                vm.push(number)?;
+            match &[left, right] {
+                [Value::Literal(left_value), Value::Literal(right_value)] => {
+                    vm.push(Value::Literal(left_value / right_value))?;
+                }
+                _ => {
+                    return Err(ExecuteError::InvalidValue);
+                }
             }
-        },
+        }
+        Some(Opcode::Pop) => {
+            vm.pop()?;
+        }
+        Some(Opcode::Push(value)) => {
+            vm.push(value)?;
+        }
         Some(Opcode::Compare) => {
             let left = vm.pop()?;
             let right = vm.pop()?;
-            let result = if left == right { 1 } else { 0 };
-            vm.push(result)?;
+            let result = if left == right {
+                Boolean::True
+            } else {
+                Boolean::False
+            };
+            vm.push(Value::Boolean(result))?;
         }
         Some(Opcode::Noop) => {}
         Some(opcode) => {

@@ -11,4 +11,5 @@ pub enum ExecuteError {
     UnhandledOpcode(Opcode),
     UnknownRegister,
     ZeroDivision,
+    InvalidValue
 }

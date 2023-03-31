@@ -1,7 +1,7 @@
 mod bytecode;
 mod vm;
 
-use bytecode::{Opcode, Register, Value};
+use bytecode::{Opcode, Value};
 
 fn main() {
     let code = vec![
@@ -14,7 +14,7 @@ fn main() {
         Opcode::Push(Value::Literal(4)),
         Opcode::Compare,
     ];
-    let mut vm = vm::frame::VmFrame::new(code.clone());
+    let mut vm = vm::frame::Vm::new(code.clone());
 
     while vm.registers.code_ptr < code.len() {
         vm::frame::execute(&mut vm).expect("Woops!");
