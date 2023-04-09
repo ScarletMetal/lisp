@@ -4,7 +4,7 @@ use crate::vm::execute::{ExecuteError, ExecuteResult};
 pub const STACK_SIZE: usize = 2048;
 
 pub struct Vm<'a> {
-    pub code: &'a [Opcode],
+    pub code_chunk: &'a [Opcode],
     pub code_ptr: usize,
     pub stack_ptr: usize,
     pub stack: Vec<Value>,
@@ -13,7 +13,7 @@ pub struct Vm<'a> {
 impl<'a> Vm<'a> {
     pub fn new(code: &'a [Opcode]) -> Self {
         Self {
-            code,
+            code_chunk: code,
             stack: Vec::new(),
             stack_ptr: 0,
             code_ptr: 0,

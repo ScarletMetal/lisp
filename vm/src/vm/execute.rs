@@ -1,5 +1,5 @@
 use crate::bytecode::{Opcode, Value};
-use crate::vm::vm::{Vm, STACK_SIZE};
+use crate::vm::vm::Vm;
 
 pub type ExecuteResult<T> = Result<T, ExecuteError>;
 
@@ -13,17 +13,15 @@ pub enum ExecuteError {
     UnknownRegister,
     ZeroDivision,
     InvalidValue,
-    ValueIsNotCallable,
+    NotCallable(Value),
 }
 
-pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
-    let current = { vm.code.get(vm.code_ptr).map(Clone::clone) };
-
-    match current {
-        Some(Opcode::Jump) => {
+fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
+    match opcode {
+        Opcode::Jump => {
             return vm.jump();
         }
-        Some(Opcode::JumpTrue) => {
+        Opcode::JumpTrue => {
             if let Value::Boolean(true) = vm.pop()? {
                 return vm.jump();
             } else {
@@ -31,7 +29,7 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
             }
             return Ok(());
         }
-        Some(Opcode::JumpFalse) => {
+        Opcode::JumpFalse => {
             if let Value::Boolean(false) = vm.pop()? {
                 return vm.jump();
             } else {
@@ -42,8 +40,8 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
         _ => {}
     }
 
-    match current {
-        Some(Opcode::BinaryAdd) => {
+    match opcode {
+        Opcode::BinaryAdd => {
             let left = vm.pop()?;
             let right = vm.pop()?;
             match &[left, right] {
@@ -55,7 +53,7 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
                 }
             }
         }
-        Some(Opcode::BinarySub) => {
+        Opcode::BinarySub => {
             let left = vm.pop()?;
             let right = vm.pop()?;
             match &[left, right] {
@@ -67,7 +65,7 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
                 }
             }
         }
-        Some(Opcode::BinaryMul) => {
+        Opcode::BinaryMul => {
             let left = vm.pop()?;
             let right = vm.pop()?;
             match &[left, right] {
@@ -79,7 +77,7 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
                 }
             }
         }
-        Some(Opcode::BinaryDiv) => {
+        Opcode::BinaryDiv => {
             let left = vm.pop()?;
             let right = vm.pop()?;
             match &[left, right] {
@@ -91,27 +89,34 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
                 }
             }
         }
-        Some(Opcode::Pop) => {
+        Opcode::Pop => {
             vm.pop()?;
         }
-        Some(Opcode::Push(value)) => {
-            vm.push(value)?;
+        Opcode::Push(value) => {
+            vm.push(value.clone())?;
         }
-        Some(Opcode::Compare) => {
+        Opcode::Compare => {
             let left = vm.pop()?;
             let right = vm.pop()?;
             let result = if left == right { true } else { false };
             vm.push(Value::Boolean(result))?;
         }
-        Some(Opcode::Noop) => {}
-        Some(opcode) => {
-            return Err(ExecuteError::UnhandledOpcode(opcode));
-        }
-        None => {
-            return Err(ExecuteError::NoOpcode);
+        Opcode::Noop => {}
+        _ => {
+            return Err(ExecuteError::UnhandledOpcode(opcode.clone()));
         }
     }
 
     vm.code_ptr += 1;
     Ok(())
+}
+
+pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
+    let current = vm.code_chunk.get(vm.code_ptr);
+
+    if let Some(opcode) = current {
+        execute_opcode(vm, opcode)
+    } else {
+        Err(ExecuteError::NoOpcode)
+    }
 }

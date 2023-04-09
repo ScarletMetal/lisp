@@ -1,2 +1,3 @@
-pub mod execute;
-pub mod vm;
+pub mod context;
+mod vm;
+pub use vm::Vm;

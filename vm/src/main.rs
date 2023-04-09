@@ -16,7 +16,7 @@ fn main() {
         Opcode::Compare,
         Opcode::Push(Value::Literal(322))
     ];
-    let mut vm = vm::vm::Vm::new(&code);
+    let mut vm = vm::Vm::new(&code);
 
     while vm.code_ptr < code.len() {
         vm::execute::execute(&mut vm);
