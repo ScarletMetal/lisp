@@ -1,76 +1,41 @@
-use crate::bytecode::{Boolean, Opcode, Value};
-use crate::vm::vm::{ExecuteError, STACK_SIZE};
+use crate::bytecode::{Opcode, Value};
+use crate::vm::vm::{Vm, STACK_SIZE};
 
-pub struct VmRegisters {
-    pub stack_ptr: usize,
-    pub code_ptr: usize,
-}
+pub type ExecuteResult<T> = Result<T, ExecuteError>;
 
-pub struct Vm {
-    pub registers: VmRegisters,
-    code: Vec<Opcode>,
-    pub stack: Vec<Value>,
-}
-
-impl Vm {
-    pub fn new(code: Vec<Opcode>) -> Self {
-        Self {
-            code,
-            stack: Vec::new(),
-            registers: VmRegisters {
-                stack_ptr: 0,
-                code_ptr: 0,
-            },
-        }
-    }
-
-    pub fn pop(&mut self) -> Result<Value, ExecuteError> {
-        if self.registers.stack_ptr == 0 {
-            return Err(ExecuteError::EmptyStack);
-        }
-
-        let value = self.stack[self.registers.stack_ptr - 1];
-        self.registers.stack_ptr -= 1;
-        return Ok(value);
-    }
-
-    fn push(&mut self, value: Value) -> Result<(), ExecuteError> {
-        if self.registers.stack_ptr >= STACK_SIZE {
-            return Err(ExecuteError::StackOverflow);
-        }
-
-        if self.stack.len() <= self.registers.stack_ptr {
-            self.stack.push(value);
-        } else {
-            self.stack[self.registers.stack_ptr] = value;
-        }
-
-        self.registers.stack_ptr += 1;
-        Ok(())
-    }
+#[derive(Debug)]
+pub enum ExecuteError {
+    EmptyStack,
+    InvalidRegister,
+    NoOpcode,
+    StackOverflow,
+    UnhandledOpcode(Opcode),
+    UnknownRegister,
+    ZeroDivision,
+    InvalidValue,
+    ValueIsNotCallable,
 }
 
 pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
-    let current = { vm.code.get(vm.registers.code_ptr).map(Clone::clone) };
+    let current = { vm.code.get(vm.code_ptr).map(Clone::clone) };
 
     match current {
-        Some(Opcode::Jump(offset)) => {
-            vm.registers.code_ptr = offset;
-            return Ok(());
+        Some(Opcode::Jump) => {
+            return vm.jump();
         }
-        Some(Opcode::JumpTrue(offset)) => {
-            if let Value::Boolean(Boolean::True) = vm.pop()? {
-                vm.registers.code_ptr = offset;
+        Some(Opcode::JumpTrue) => {
+            if let Value::Boolean(true) = vm.pop()? {
+                return vm.jump();
             } else {
-                vm.registers.code_ptr += 1;
+                vm.code_ptr += 1;
             }
             return Ok(());
         }
-        Some(Opcode::JumpFalse(offset)) => {
-            if let Value::Boolean(Boolean::False) = vm.pop()? {
-                vm.registers.code_ptr = offset;
+        Some(Opcode::JumpFalse) => {
+            if let Value::Boolean(false) = vm.pop()? {
+                return vm.jump();
             } else {
-                vm.registers.code_ptr += 1;
+                vm.code_ptr += 1;
             }
             return Ok(());
         }
@@ -135,11 +100,7 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
         Some(Opcode::Compare) => {
             let left = vm.pop()?;
             let right = vm.pop()?;
-            let result = if left == right {
-                Boolean::True
-            } else {
-                Boolean::False
-            };
+            let result = if left == right { true } else { false };
             vm.push(Value::Boolean(result))?;
         }
         Some(Opcode::Noop) => {}
@@ -151,6 +112,6 @@ pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
         }
     }
 
-    vm.registers.code_ptr += 1;
+    vm.code_ptr += 1;
     Ok(())
 }

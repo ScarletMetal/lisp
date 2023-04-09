@@ -10,17 +10,16 @@ fn main() {
         Opcode::BinaryAdd,
         Opcode::Push(Value::Literal(10)),
         Opcode::BinaryMul,
+        Opcode::Pop,
         Opcode::Push(Value::Literal(4)),
         Opcode::Push(Value::Literal(4)),
         Opcode::Compare,
+        Opcode::Push(Value::Literal(322))
     ];
-    let mut vm = vm::frame::Vm::new(code.clone());
+    let mut vm = vm::vm::Vm::new(&code);
 
-    while vm.registers.code_ptr < code.len() {
-        vm::frame::execute(&mut vm).expect("Woops!");
-        println!(
-            "stack={:?}",
-            vm.stack
-        )
+    while vm.code_ptr < code.len() {
+        vm::execute::execute(&mut vm);
+        println!("stack={:?} stack_ptr={:?}", vm.stack, vm.stack_ptr)
     }
 }
