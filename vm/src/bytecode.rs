@@ -5,7 +5,7 @@ pub enum Value {
     Reference(usize)
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub enum Opcode {
     Noop,
 
@@ -15,11 +15,13 @@ pub enum Opcode {
     BinaryDiv,
 
     Push(Value),
+    PushLocal(usize),
     Pop,
 
     Jump,
     JumpTrue,
     JumpFalse,
-    Call,
+    Call(usize),
+    Return(usize),
     Compare
 }

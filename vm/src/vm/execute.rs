@@ -5,45 +5,55 @@ pub type ExecuteResult<T> = Result<T, ExecuteError>;
 
 #[derive(Debug)]
 pub enum ExecuteError {
-    EmptyStack,
-    InvalidRegister,
-    NoOpcode,
-    StackOverflow,
-    UnhandledOpcode(Opcode),
-    UnknownRegister,
-    ZeroDivision,
+    EmptyCallStack,
+    EmptyDataStack,
+    InvalidReference,
     InvalidValue,
-    NotCallable(Value),
+    LocalNotFound(usize),
+    NoOpcode,
+    UnhandledOpcode(Opcode),
+    ZeroDivision,
 }
 
-fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
+fn execute_opcode(vm: &mut Vm, opcode: Opcode) -> ExecuteResult<()> {
     match opcode {
         Opcode::Jump => {
-            return vm.jump();
+            let offset = vm.pop_ref()?;
+            return vm.jump(offset);
         }
         Opcode::JumpTrue => {
+            let offset = vm.pop_ref()?;
             if let Value::Boolean(true) = vm.pop()? {
-                return vm.jump();
+                return vm.jump(offset);
             } else {
-                vm.code_ptr += 1;
+                vm.step()?;
             }
             return Ok(());
         }
         Opcode::JumpFalse => {
+            let offset = vm.pop_ref()?;
             if let Value::Boolean(false) = vm.pop()? {
-                return vm.jump();
+                return vm.jump(offset);
             } else {
-                vm.code_ptr += 1;
+                vm.step()?;
             }
             return Ok(());
+        }
+        Opcode::Call(num_params) => {
+            let chunk_id = vm.pop_ref()?;
+            vm.step()?;
+            return vm.call(chunk_id, num_params);
+        }
+        Opcode::Return(num_params) => {
+            return vm.ret(num_params);
         }
         _ => {}
     }
 
     match opcode {
         Opcode::BinaryAdd => {
-            let left = vm.pop()?;
             let right = vm.pop()?;
+            let left = vm.pop()?;
             match &[left, right] {
                 [Value::Literal(left_value), Value::Literal(right_value)] => {
                     vm.push(Value::Literal(left_value + right_value))?;
@@ -54,8 +64,8 @@ fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
             }
         }
         Opcode::BinarySub => {
-            let left = vm.pop()?;
             let right = vm.pop()?;
+            let left = vm.pop()?;
             match &[left, right] {
                 [Value::Literal(left_value), Value::Literal(right_value)] => {
                     vm.push(Value::Literal(left_value - right_value))?;
@@ -66,8 +76,8 @@ fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
             }
         }
         Opcode::BinaryMul => {
-            let left = vm.pop()?;
             let right = vm.pop()?;
+            let left = vm.pop()?;
             match &[left, right] {
                 [Value::Literal(left_value), Value::Literal(right_value)] => {
                     vm.push(Value::Literal(left_value * right_value))?;
@@ -78,9 +88,12 @@ fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
             }
         }
         Opcode::BinaryDiv => {
-            let left = vm.pop()?;
             let right = vm.pop()?;
+            let left = vm.pop()?;
             match &[left, right] {
+                [_, Value::Literal(0)] => {
+                    return Err(ExecuteError::ZeroDivision);
+                }
                 [Value::Literal(left_value), Value::Literal(right_value)] => {
                     vm.push(Value::Literal(left_value / right_value))?;
                 }
@@ -93,7 +106,14 @@ fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
             vm.pop()?;
         }
         Opcode::Push(value) => {
-            vm.push(value.clone())?;
+            vm.push(value)?;
+        }
+        Opcode::PushLocal(index) => {
+            let value = vm
+                .get_locals()?
+                .get(index)
+                .ok_or(ExecuteError::LocalNotFound(index))?;
+            vm.push(value.clone())?
         }
         Opcode::Compare => {
             let left = vm.pop()?;
@@ -107,16 +127,11 @@ fn execute_opcode(vm: &mut Vm, opcode: &Opcode) -> ExecuteResult<()> {
         }
     }
 
-    vm.code_ptr += 1;
+    vm.step()?;
     Ok(())
 }
 
-pub fn execute(vm: &mut Vm) -> Result<(), ExecuteError> {
-    let current = vm.code_chunk.get(vm.code_ptr);
-
-    if let Some(opcode) = current {
-        execute_opcode(vm, opcode)
-    } else {
-        Err(ExecuteError::NoOpcode)
-    }
+pub fn execute(vm: &mut Vm) -> ExecuteResult<()> {
+    let opcode = vm.get_current_opcode()?.clone();
+    execute_opcode(vm, opcode)
 }
